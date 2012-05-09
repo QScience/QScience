@@ -1,0 +1,681 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for QScience.
+ *
+ * @ingroup QScience
+ */
+
+/**
+ * Implements hook_install().
+ */
+function qscience_install() {
+  
+   // Create fields for user entity type.
+  // Many of the following values will be defaulted, they're included here as an illustrative examples.
+  // See http://api.drupal.org/api/function/field_create_field/7
+
+  $fields = array(
+    array(
+    	'field_name' => 'first_name',
+    	'type' => 'text',  
+    ),
+    array(
+    	'field_name' => 'last_name',
+    	'type' => 'text', 
+    ),
+    array(
+    	'field_name' => 'country',
+    	'type' => 'list_text', 
+    ),
+    array(
+    	'field_name' => 'position',
+    	'type' => 'list_text', 
+    ),
+    array(
+    	'field_name' => 'institution',
+    	'type' => 'taxonomy_term_reference', 
+    ),
+    array(
+    	'field_name' => 'picture',
+    	'type' => 'image', 
+    ),
+    array(
+    	'field_name' => 'website', 
+    	'type' => 'text',  
+    ),
+    array(
+    	'field_name' => 'research_fields', 
+    	'type' => 'text', 
+    ),
+  );
+  
+  foreach($fields as $field){
+  	field_create_field($field);
+  }
+  // Create instances for user entity type.
+    $instances = array(
+    array(
+    	'field_name' => 'first_name', 
+    	'label' => 'First Name', 
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   			'type' => 'text_textfield',
+   			'weight' => 1, 
+   			), 
+    ),
+    array(
+    	'field_name' => 'last_name',
+    	'label' => 'Last Name',  
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   			'type' => 'text_textfield',
+   			'weight' => 2, 
+   		), 
+    	
+    ),
+    array(
+    	'field_name' => 'country',
+    	'label' => 'Country',  
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   		'type' => 'options_select',
+   		'weight' => 3,
+   		), 
+    	
+    	'settings' => array(
+      	'allowed_values' => array('China',
+      	                     'America',
+      	                     'Switzerland',
+      	                     'Others',), 
+    	),  
+    ),
+    array(
+    	'field_name' => 'position',
+    	'label' => 'Position',
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   		'type' => 'options_select',
+   		'weight' => 4,
+   		), 
+    	
+    	'settings' => array(
+      	'allowed_values' => array('Professor',
+      	                     'PostDoc',
+      	                      'PhD',
+      	                      'Others', ),
+    	), 
+    ),
+    array(
+    	'field_name' => 'institution',
+    	'label' => 'Institution',  
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   		'type' => 'taxonomy_autocomplete',
+   		'weight' => 5, 
+   		), 
+    	
+    ),
+    array(
+    	'field_name' => 'picture',
+    	'label' => 'Picture', 
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   		'type' => 'image_image',
+   		'weight' => 6, 
+   		), 
+    	
+    ),
+    array(
+    	'field_name' => 'website',
+    	'label' => 'Website', 
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 7, 
+   		), 
+    	
+    ),
+    array(
+    	'field_name' => 'research_fields',
+    	'label' => 'Field(s) of Research (e.g. Economics, Computer Science, etc.).', 
+    	'entity_type' => 'user', 
+      'bundle' => 'user',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 8, 
+   		), 
+    ),
+  );
+  foreach($instances as $instance){
+  	field_create_instance($instance);
+  }
+  
+    // Insert pre-defined node types into the database. For a complete
+  // list of available node type attributes, refer to the node type API
+  // documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+  $types = array(
+    array(
+      'type' => 'paper', 
+      'name' => st('Paper'), 
+      'base' => 'node_content', 
+      'description' => st("Scientific paper type which allows users to vote."), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'book', 
+      'name' => st('Book'), 
+      'base' => 'node_content', 
+      'description' => st('Scientific book type which allows users to vote.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+     array(
+      'type' => 'institution', 
+      'name' => st('Institution'), 
+      'base' => 'node_content', 
+      'description' => st('A type of content to describe institutions.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+     array(
+      'type' => 'journal', 
+      'name' => st('Journal'), 
+      'base' => 'node_content', 
+      'description' => st('A type of content to describe journals.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+     array(
+      'type' => 'event', 
+      'name' => st('Event'), 
+      'base' => 'node_content', 
+      'description' => st('A type of content to describe events.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'bookreview', 
+      'name' => st('Book Review'), 
+      'base' => 'node_content', 
+      'description' => st('A type of content to show book reviews.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'editorial', 
+      'name' => st('Editorial'), 
+      'base' => 'node_content', 
+      'description' => st('The Editorial content type.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+    ),
+  );
+
+  foreach($types as $type) {
+    $type = node_type_set_defaults($type);
+    node_type_save($type);
+  }
+  
+   // Create fields for node entity type.
+   
+   $fields = array(
+    array(
+    	'field_name' => 'author',
+    	'type' => 'text',  
+    ),
+    array(
+    	'field_name' => 'abstract',
+    	'type' => 'text_with_summary', 
+    ),
+    array(
+    	'field_name' => 'journal',
+    	'type' => 'text', 
+    ),
+    array(
+    	'field_name' => 'note',
+    	'type' => 'text_with_summary', 
+    ),
+    array(
+    	'field_name' => 'date',
+    	'type' => 'datetime', 
+    ),
+    array(
+    	'field_name' => 'dateend',
+    	'type' => 'datetime', 
+    ),
+    array(
+    	'field_name' => 'datebegin',
+    	'type' => 'datetime', 
+    ),
+    array(
+    	'field_name' => 'url',
+    	'type' => 'text', 
+    ),
+    
+    array(
+    	'field_name' => 'numberis', 
+    	'type' => 'text', 
+    ),
+    array(
+    	'field_name' => 'numberdoi', 
+    	'type' => 'text', 
+    ),
+    
+    array(
+    	'field_name' => 'city', 
+    	'type' => 'text', 
+    ),
+  );
+  foreach($fields as $field){
+  	field_create_field($field);
+  }
+  
+  //add field instances for paper
+  $paperinstances=array(
+  	array(
+    	'field_name' => 'author',
+    	'label' => 'Author',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'date',
+    	'label' => 'Pubilcated Date',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'date_text',
+   		'weight' => 2, 
+   		), 
+   		'settings' => array(
+      	'granularity' =>array('day'=>'day',
+      	                     'month'=>'month'),
+    	),    	
+    ),
+    array(
+    	'field_name' => 'journal',
+    	'label' => 'Journal',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 3, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'numberis',
+    	'label' => 'ISSN', 
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 5, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'numberdoi',
+    	'label' => 'DOI',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 6, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'note',
+    	'label' => 'Note',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 7, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'url',
+    	'label' => 'External URL',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 8, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'abstract',
+    	'label' => 'Abstract',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 9, 
+   		),     	
+    ),
+  );
+  foreach($paperinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
+   //add field instances for book
+  $bookinstances=array(
+  	array(
+    	'field_name' => 'author',
+    	'label' => 'Author',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'date',
+    	'label' => 'Pubilcated Date',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'date_text',
+   		'weight' => 2, 
+   		), 
+   		'settings' => array(
+      	'granularity' =>array('day'=>'day',
+      	                     'month'=>'month'),
+    	),    	
+    ),
+    array(
+    	'field_name' => 'journal',
+    	'label' => 'Editor',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 3, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'numberis',
+    	'label' => 'ISBN',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 4, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'numberdoi',
+    	'label' => 'DOI',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 6, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'note',
+    	'label' => 'Note',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 7, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'url',
+    	'label' => 'External URL',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 8, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'abstract',
+    	'label' => 'Abstract',  
+    	'entity_type' => 'node', 
+      'bundle' => 'book',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 9, 
+   		),     	
+    ),
+  );
+  
+  foreach($bookinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
+     //add field instances for institution
+  $instinstances=array(
+  	array(
+    	'field_name' => 'country',
+    	'label' => 'Country',  
+    	'entity_type' => 'node', 
+      'bundle' => 'institution',  
+   		'widget' => array(
+   		'type' => 'options_select',
+   		'weight' => 1,
+   		), 
+    	
+    	'settings' => array(
+      	'allowed_values' => array('China',
+      	                     'America',
+      	                     'Switzerland',
+      	                     'Others',), 
+    	),  
+    ),
+
+    array(
+    	'field_name' => 'city',
+    	'label' => 'City',  
+    	'entity_type' => 'node', 
+      'bundle' => 'institution',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 2, 
+   		),     	
+    ),
+    
+    array(
+    	'field_name' => 'website',
+    	'label' => 'Website', 
+    	'entity_type' => 'node', 
+      'bundle' => 'institution',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 3, 
+   		), 
+    	
+    ),
+  );
+  
+  foreach($instinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
+       //add field instances for journal
+  $journalinstances=array(
+  	array(
+    	'field_name' => 'research_fields',
+    	'label' => 'Fields',  
+    	'entity_type' => 'node', 
+      'bundle' => 'journal',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1,
+   		), 
+    ),
+  );
+  
+  foreach($journalinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
+         //add field instances for event
+  $eventinstances=array(
+  	array(
+    	'field_name' => 'city',
+    	'label' => 'Location',  
+    	'entity_type' => 'node', 
+      'bundle' => 'event',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1,
+   		), 
+    ),
+    
+    array(
+    	'field_name' => 'datebegin',
+    	'label' => 'Begin Date',  
+    	'entity_type' => 'node', 
+      'bundle' => 'event',  
+   		'widget' => array(
+   		'type' => 'date_text',
+   		'weight' => 2, 
+   		), 
+   		'settings' => array(
+      	'granularity' =>array('day'=>'day',
+      	                     'month'=>'month'),
+    	),    	
+    ),
+    array(
+    	'field_name' => 'dateend',
+    	'label' => 'End Date',  
+    	'entity_type' => 'node', 
+      'bundle' => 'event',  
+   		'widget' => array(
+   		'type' => 'date_text',
+   		'weight' => 3, 
+   		), 
+   		'settings' => array(
+      	'granularity' =>array('day'=>'day',
+      	                     'month'=>'month'),
+    	),    	
+    ),
+    array(
+    	'field_name' => 'abstract',
+    	'label' => 'Discripatioin',  
+    	'entity_type' => 'node', 
+      'bundle' => 'event',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 4, 
+   		),     	
+    ),
+  );
+  
+  foreach($eventinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
+   //add field instances for book review
+  $bookrinstances=array(
+  	array(
+    	'field_name' => 'author',
+    	'label' => 'Author',  
+    	'entity_type' => 'node', 
+      'bundle' => 'bookreview',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'abstract',
+    	'label' => 'Review',  
+    	'entity_type' => 'node', 
+      'bundle' => 'bookreview',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 4, 
+   		),     	
+    ),
+  );
+  foreach($bookrinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function qscience_uninstall() {
+  // Delete all the  fields and instances
+   field_delete_field('first_name');
+   field_delete_field('last_name');
+   field_delete_field('country');
+   field_delete_field('position');
+   field_delete_field('institution');
+   field_delete_field('picture');
+   field_delete_field('website');
+   field_delete_field('research_fields');
+  
+   field_delete_field('author');
+   field_delete_field('abstract');
+   field_delete_field('journal');
+   field_delete_field('note');
+   field_delete_field('date');
+   field_delete_field('dateend');
+   field_delete_field('datebegin');
+   field_delete_field('url');
+   field_delete_field('numberis');
+   field_delete_field('numberdoi');
+   field_delete_field('city');
+   
+     $types = array(
+    array(
+      'type' => 'paper', 
+    ),
+    array(
+      'type' => 'book', 
+    ),
+     array(
+      'type' => 'institution', 
+    ),
+     array(
+      'type' => 'journal', 
+    ),
+     array(
+      'type' => 'event', 
+    ),
+    array(
+      'type' => 'bookreview', 
+    ),
+    array(
+      'type' => 'editorial', 
+    ),
+  );
+   foreach($types as $type) {
+    node_type_delete($type['type']);
+  	variable_del('node_preview_' . $type['type']);
+  }
+    
+  node_types_rebuild();
+  menu_rebuild();
+}

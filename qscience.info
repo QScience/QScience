@@ -1,0 +1,12 @@
+name = QScience
+description = provide some basic setting and configuration for a instance.
+dependencies[] = patterns
+dependencies[] = macro
+
+
+core = 7.x
+version = "7.x-1.0"
+php = 5.2
+package = QScience
+project = "QScience"
+
