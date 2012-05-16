@@ -2,6 +2,7 @@ name = QScience
 description = provide some basic setting and configuration for a instance.
 dependencies[] = patterns
 dependencies[] = macro
+dependencies[] = date
 
 
 core = 7.x

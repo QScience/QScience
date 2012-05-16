@@ -16,6 +16,9 @@ function qscience_install() {
   // Many of the following values will be defaulted, they're included here as an illustrative examples.
   // See http://api.drupal.org/api/function/field_create_field/7
 
+  include_once DRUPAL_ROOT . '/includes/locale.inc';
+     $countries = country_get_list();
+     field_info_cache_clear();
   $fields = array(
     array(
     	'field_name' => 'first_name',
@@ -27,11 +30,22 @@ function qscience_install() {
     ),
     array(
     	'field_name' => 'country',
-    	'type' => 'list_text', 
+    	'type' => 'list_text',     	
+    	'settings' => array(
+      	'allowed_values' => array($countries), 
+    	),
     ),
     array(
     	'field_name' => 'position',
     	'type' => 'list_text', 
+    	'settings' => array(
+      	'allowed_values' => array(
+      				'Professor'=>'Professor',
+      	                     'PostDoc'=>'PostDoc',
+      	                      'PhD'=>'PhD',
+      	                      'Others'=>'Others'),
+      	      
+    	), 
     ),
     array(
     	'field_name' => 'institution',
@@ -54,6 +68,8 @@ function qscience_install() {
   foreach($fields as $field){
   	field_create_field($field);
   }
+  
+
   // Create instances for user entity type.
     $instances = array(
     array(
@@ -85,14 +101,7 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'options_select',
    		'weight' => 3,
-   		), 
-    	
-    	'settings' => array(
-      	'allowed_values' => array('China',
-      	                     'America',
-      	                     'Switzerland',
-      	                     'Others',), 
-    	),  
+   		),   
     ),
     array(
     	'field_name' => 'position',
@@ -104,12 +113,6 @@ function qscience_install() {
    		'weight' => 4,
    		), 
     	
-    	'settings' => array(
-      	'allowed_values' => array('Professor',
-      	                     'PostDoc',
-      	                      'PhD',
-      	                      'Others', ),
-    	), 
     ),
     array(
     	'field_name' => 'institution',
@@ -165,63 +168,63 @@ function qscience_install() {
   $types = array(
     array(
       'type' => 'paper', 
-      'name' => st('Paper'), 
+      'name' => t('Paper'), 
       'base' => 'node_content', 
-      'description' => st("Scientific paper type which allows users to vote."), 
+      'description' => t("Scientific paper type which allows users to vote."), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
     ),
     array(
       'type' => 'book', 
-      'name' => st('Book'), 
+      'name' => t('Book'), 
       'base' => 'node_content', 
-      'description' => st('Scientific book type which allows users to vote.'), 
+      'description' => t('Scientific book type which allows users to vote.'), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
     ),
      array(
       'type' => 'institution', 
-      'name' => st('Institution'), 
+      'name' => t('Institution'), 
       'base' => 'node_content', 
-      'description' => st('A type of content to describe institutions.'), 
+      'description' => t('A type of content to describe institutions.'), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
     ),
      array(
       'type' => 'journal', 
-      'name' => st('Journal'), 
+      'name' => t('Journal'), 
       'base' => 'node_content', 
-      'description' => st('A type of content to describe journals.'), 
+      'description' => t('A type of content to describe journals.'), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
     ),
      array(
       'type' => 'event', 
-      'name' => st('Event'), 
+      'name' => t('Event'), 
       'base' => 'node_content', 
-      'description' => st('A type of content to describe events.'), 
+      'description' => t('A type of content to describe events.'), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
     ),
     array(
       'type' => 'bookreview', 
-      'name' => st('Book Review'), 
+      'name' => t('Book Review'), 
       'base' => 'node_content', 
-      'description' => st('A type of content to show book reviews.'), 
+      'description' => t('A type of content to show book reviews.'), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
     ),
     array(
       'type' => 'editorial', 
-      'name' => st('Editorial'), 
+      'name' => t('Editorial'), 
       'base' => 'node_content', 
-      'description' => st('The Editorial content type.'), 
+      'description' => t('The Editorial content type.'), 
       'custom' => 1, 
       'modified' => 1, 
       'locked' => 0,
@@ -255,14 +258,23 @@ function qscience_install() {
     array(
     	'field_name' => 'date',
     	'type' => 'datetime', 
+    	'settings' => array(
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)
     ),
     array(
     	'field_name' => 'dateend',
     	'type' => 'datetime', 
+    	'settings' => array(
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)
     ),
     array(
     	'field_name' => 'datebegin',
-    	'type' => 'datetime', 
+    	'type' => 'datetime',
+    	'settings' => array(
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)
     ),
     array(
     	'field_name' => 'url',
@@ -307,11 +319,11 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'date_text',
    		'weight' => 2, 
-   		), 
+   		),
    		'settings' => array(
-      	'granularity' =>array('day'=>'day',
-      	                     'month'=>'month'),
-    	),    	
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)
+   	   	
     ),
     array(
     	'field_name' => 'journal',
@@ -398,11 +410,11 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'date_text',
    		'weight' => 2, 
-   		), 
+   		),
    		'settings' => array(
-      	'granularity' =>array('day'=>'day',
-      	                     'month'=>'month'),
-    	),    	
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)
+    	
     ),
     array(
     	'field_name' => 'journal',
@@ -471,6 +483,7 @@ function qscience_install() {
   }
   
      //add field instances for institution
+
   $instinstances=array(
   	array(
     	'field_name' => 'country',
@@ -481,13 +494,6 @@ function qscience_install() {
    		'type' => 'options_select',
    		'weight' => 1,
    		), 
-    	
-    	'settings' => array(
-      	'allowed_values' => array('China',
-      	                     'America',
-      	                     'Switzerland',
-      	                     'Others',), 
-    	),  
     ),
 
     array(
@@ -557,11 +563,11 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'date_text',
    		'weight' => 2, 
-   		), 
+   		),   
    		'settings' => array(
-      	'granularity' =>array('day'=>'day',
-      	                     'month'=>'month'),
-    	),    	
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)
+    	 	
     ),
     array(
     	'field_name' => 'dateend',
@@ -571,11 +577,10 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'date_text',
    		'weight' => 3, 
-   		), 
+   		),
    		'settings' => array(
-      	'granularity' =>array('day'=>'day',
-      	                     'month'=>'month'),
-    	),    	
+      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
+    	)   	
     ),
     array(
     	'field_name' => 'abstract',
