@@ -320,9 +320,6 @@ function qscience_install() {
    		'type' => 'date_text',
    		'weight' => 2, 
    		),
-   		'settings' => array(
-      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
-    	)
    	   	
     ),
     array(
@@ -411,9 +408,6 @@ function qscience_install() {
    		'type' => 'date_text',
    		'weight' => 2, 
    		),
-   		'settings' => array(
-      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
-    	)
     	
     ),
     array(
@@ -564,9 +558,6 @@ function qscience_install() {
    		'type' => 'date_text',
    		'weight' => 2, 
    		),   
-   		'settings' => array(
-      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
-    	)
     	 	
     ),
     array(
@@ -577,10 +568,7 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'date_text',
    		'weight' => 3, 
-   		),
-   		'settings' => array(
-      	'granularity' => drupal_map_assoc(array('year', 'month', 'day')),
-    	)   	
+   		),  	
     ),
     array(
     	'field_name' => 'abstract',
