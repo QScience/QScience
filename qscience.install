@@ -613,6 +613,43 @@ function qscience_install() {
   	field_create_instance($instance);
   }
   
+    //add field instances for editorial
+  $editorialinstances=array(
+  	array(
+    	'field_name' => 'author',
+    	'label' => 'Author',  
+    	'entity_type' => 'node', 
+      'bundle' => 'editorial',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'abstract',
+    	'label' => 'Abstract',  
+    	'entity_type' => 'node', 
+      'bundle' => 'editorial',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 4, 
+   		),     	
+    ),
+    array(
+    	'field_name' => 'note',
+    	'label' => 'Content',  
+    	'entity_type' => 'node', 
+      'bundle' => 'editorial',  
+   		'widget' => array(
+   		'type' => 'text_textarea_with_summary',
+   		'weight' => 2, 
+   		),     	
+    ),
+  );
+  foreach($editorialinstances as $instance){
+  	field_create_instance($instance);
+  }
+  
 }
 
 /**
