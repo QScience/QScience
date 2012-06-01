@@ -52,10 +52,6 @@ function qscience_install() {
     	'type' => 'taxonomy_term_reference', 
     ),
     array(
-    	'field_name' => 'picture',
-    	'type' => 'image', 
-    ),
-    array(
     	'field_name' => 'website', 
     	'type' => 'text',  
     ),
@@ -122,17 +118,6 @@ function qscience_install() {
    		'widget' => array(
    		'type' => 'taxonomy_autocomplete',
    		'weight' => 5, 
-   		), 
-    	
-    ),
-    array(
-    	'field_name' => 'picture',
-    	'label' => 'Picture', 
-    	'entity_type' => 'user', 
-      'bundle' => 'user',  
-   		'widget' => array(
-   		'type' => 'image_image',
-   		'weight' => 6, 
    		), 
     	
     ),
@@ -662,7 +647,6 @@ function qscience_uninstall() {
    field_delete_field('country');
    field_delete_field('position');
    field_delete_field('institution');
-   field_delete_field('picture');
    field_delete_field('website');
    field_delete_field('research_fields');
   
