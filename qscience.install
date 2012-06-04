@@ -32,7 +32,7 @@ function qscience_install() {
     	'field_name' => 'country',
     	'type' => 'list_text',     	
     	'settings' => array(
-      	'allowed_values' => array($countries), 
+      	'allowed_values' => $countries, 
     	),
     ),
     array(
