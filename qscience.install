@@ -41,7 +41,7 @@ function qscience_user_field(){
 	),
 	array(
     	'field_name' => 'institution',
-    	'type' => 'taxonomy_term_reference', 
+    	'type' => 'text', 
 	),
 	array(
     	'field_name' => 'website', 
@@ -95,7 +95,7 @@ function qscience_user_field(){
     	'entity_type' => 'user', 
       'bundle' => 'user',  
    		'widget' => array(
-   		'type' => 'taxonomy_autocomplete',
+   		'type' => 'text_textfield',
    		'weight' => 3, 
 	),
 
