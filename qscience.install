@@ -280,7 +280,7 @@ function qscience_node_paper(){
       'bundle' => 'paper',  
    		'widget' => array(
    		'type' => 'file_generic',
-   		'weight' => 4, 
+   		'weight' => 5, 
 			),
 			'required' =>1,
 	),
@@ -444,7 +444,7 @@ function qscience_node_journal(){
 //add field instances for journal
 	$journalinstances=array(
 		array(
-    	'field_name' => 'field_fields',
+    	'field_name' => 'research_fields',
     	'label' => 'Fields',  
     	'entity_type' => 'node', 
       'bundle' => 'journal',  
@@ -662,7 +662,7 @@ function qscience_uninstall() {
       'type' => 'paper', 
 	),
 	array(
-      'type' => 'arxiv', 
+      'type' => 'paper_from_arxiv', 
 	),
 	array(
       'type' => 'institution', 
