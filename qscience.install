@@ -252,13 +252,24 @@ function qscience_node_paper(){
 			'required' =>1,
 	),
 	array(
+      'field_name' => 'journal',
+      'label' => 'Journal',  
+      'entity_type' => 'node', 
+      'bundle' => 'paper',  
+      'widget' => array(
+      'type' => 'text_textfield',
+      'weight' => 3, 
+      ),
+      'required' =>1,
+  ),
+	array(
     	'field_name' => 'url',
     	'label' => 'External URL',  
     	'entity_type' => 'node', 
       'bundle' => 'paper',  
    		'widget' => array(
    		'type' => 'text_textfield',
-   		'weight' => 3, 
+   		'weight' => 4, 
 			),
 	),
 	array(
@@ -433,7 +444,7 @@ function qscience_node_journal(){
 //add field instances for journal
 	$journalinstances=array(
 		array(
-    	'field_name' => 'research_fields',
+    	'field_name' => 'field_fields',
     	'label' => 'Fields',  
     	'entity_type' => 'node', 
       'bundle' => 'journal',  
