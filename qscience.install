@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Install, update, and uninstall functions for QScience.
@@ -615,6 +614,80 @@ function qscience_node_editorial(){
 		field_create_instance($instance);
 	}
 }
+
+function qscience_node_author() {
+  
+	$type=array(
+      'type' => 'author', 
+      'name' => t('Author'), 
+      'base' => 'node_content', 
+      'description' => t("Authors to scientific papers."), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+	);
+	$type = node_type_set_defaults($type);
+	node_type_save($type);
+	$authorinstances = array(
+	array(
+    	'field_name' => 'first_name',
+    	'label' => 'First name',
+    	'entity_type' => 'node', 
+      'bundle' => 'author',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 1, 
+			),
+			'required' =>1,
+	),
+	array(
+    	'field_name' => 'last_name',
+    	'label' => 'Last name',  
+    	'entity_type' => 'node', 
+      'bundle' => 'author',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 2, 
+			),
+			'required' =>1,
+	),
+	);
+	foreach($authorinstances as $instance){
+		field_create_instance($instance);
+	}
+}
+
+function qscience_author_autotitle() {
+
+  $pattern = '<?php
+    $ret = "";
+    foreach ($node->first_name as $lang) {
+      foreach ($lang as $key => $val) {
+        $ret .= $val["value"];
+        break;
+      }
+      break;
+    }
+    $ret .= " ";
+    foreach ($node->last_name as $lang) {
+      foreach ($lang as $key => $val) {
+        $ret .= $val["value"];
+        break;
+      }
+      break;
+    }
+    return $ret;
+    ?>
+  ';
+
+  // enable auto nodetitle
+  variable_set('ant_author', 1);
+  // setting the pattern
+  variable_set('ant_pattern_author', $pattern);
+  // enable pattern
+  variable_set('ant_php_author', 1); 
+}
+
 /**
  * Implements hook_install().
  */
@@ -629,6 +702,9 @@ function qscience_install() {
 	qscience_node_event();
 	qscience_node_news();
 	qscience_node_editorial();
+  qscience_node_author();
+
+  qscience_author_autotitle();
 }
 
 /**
@@ -682,6 +758,9 @@ function qscience_uninstall() {
 	array(
       'type' => 'news', 
 	),
+	array(
+      'type' => 'author', 
+	),
 	);
 	foreach($types as $type) {
 		node_type_delete($type['type']);
@@ -691,3 +770,29 @@ function qscience_uninstall() {
 	node_types_rebuild();
 	menu_rebuild();
 }
+
+/**
+ *
+ * <?php 
+ * $ret = '';
+ * foreach ($node->first_name as $lang) {
+ *   foreach ($lang as $key => $val) {
+ *       $ret .= $val['value'];
+ *           break;
+ *             }
+ *               break;
+ *               }
+ *               $ret .= ' ';
+ *               foreach ($node->last_name as $lang) {
+ *                 foreach ($lang as $key => $val) {
+ *                     $ret .= $val['value'];
+ *                         break;
+ *                           }
+ *                             break;
+ *                             }
+ *                             return $ret;
+ *                             ?>
+ *
+ *
+ *
+ */

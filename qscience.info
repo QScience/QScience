@@ -4,7 +4,9 @@ dependencies[] = patterns
 dependencies[] = macro
 dependencies[] = date
 dependencies[] = arxiv
-
+dependencies[] = entityreference
+dependencies[] = entity
+dependencies[] = auto_nodetitle
 
 core = 7.x
 version = "7.x-1.0"
