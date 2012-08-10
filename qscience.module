@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * Implements hook_insert
+ */
+function qscience_node_insert($node) {
+  if ($node->type === 'author') {
+    //qscience_paper_uploaded();
+  }
+  else {
+    //watchdog('qscience', 'NOT author node inserting...');
+  }
+}
+
+/**
+ * Implements file_insert
+ */
+function qscience_file_insert($file) {
+  if ($_POST['form_id'] == 'paper_node_form') {
+    qscience_paper_uploaded($file);
+  }
+}
+
+function qscience_paper_uploaded($file) {
+  foreach (module_implements('paper_uploaded') as $module) {
+    if ($module === 'qscience') continue;
+    module_invoke($module, 'paper_uploaded', $file);
+  }
+}
+

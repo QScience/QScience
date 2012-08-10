@@ -131,7 +131,9 @@ function qscience_user_field(){
    		'weight' => 6, 
 	),
 
-	),
+),
+
+    
 	);
 	foreach($instances as $instance){
 		field_create_instance($instance);
@@ -201,15 +203,13 @@ function qscience_create_field(){
 							'Conference Report'=>'Conference Report',
       	      'Others'=>'Others'),
 
-	), 
+	  ), 
 	),
 	array(
-    	'field_name' => 'field_upload', 
-    	'type' => 'file', 
-			'settings' => array(
-      	'file_extensions' => 'pdf, ps, doc, txt, rtf',
-	),
-	),);
+    	'field_name' => 'field_paper_upload', 
+      'type' => 'file', 
+    ),
+  );
 	foreach($fields as $field){
 		field_create_field($field);
 	}
@@ -227,18 +227,34 @@ function qscience_node_paper(){
 	);
 	$type = node_type_set_defaults($type);
 	node_type_save($type);
-	$paperinstances=array(
+  $paperinstances = array(
+
 	array(
-    	'field_name' => 'authorname',
-    	'label' => 'Author',  
+    	'field_name' => 'field_paper_upload',
+    	'label' => 'Upload', 
+			'description'=>'Upload the paper.', 
     	'entity_type' => 'node', 
-      'bundle' => 'paper',  
+      'bundle' => 'paper',
+      'settings' => array(
+        'file_extensions' => 'doc txt pdf ps rtf',
+      ),
    		'widget' => array(
-   		'type' => 'text_textfield',
-   		'weight' => 1, 
+   		  'type' => 'file_generic',
+     		'weight' => 1,
 			),
 			'required' =>1,
 	),
+//	array(
+//    	'field_name' => 'authorname',
+//    	'label' => 'Author',  
+//    	'entity_type' => 'node', 
+//      'bundle' => 'paper',  
+//   		'widget' => array(
+//   		'type' => 'text_textfield',
+//   		'weight' => 1, 
+//			),
+//			'required' =>1,
+//	),
 	array(
     	'field_name' => 'abstract',
     	'label' => 'Abstract',  
@@ -271,19 +287,6 @@ function qscience_node_paper(){
    		'weight' => 4, 
 			),
 	),
-	array(
-    	'field_name' => 'field_upload',
-    	'label' => 'Upload', 
-			'description'=>'Upload the paper', 
-    	'entity_type' => 'node', 
-      'bundle' => 'paper',  
-   		'widget' => array(
-   		'type' => 'file_generic',
-   		'weight' => 5, 
-			),
-			'required' =>1,
-	),
-
 
 	);
 	foreach($paperinstances as $instance){
@@ -658,7 +661,6 @@ function qscience_node_author() {
 }
 
 function qscience_author_autotitle() {
-
   $pattern = '<?php
     $ret = "";
     foreach ($node->first_name as $lang) {
