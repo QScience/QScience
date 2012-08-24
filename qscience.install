@@ -244,17 +244,17 @@ function qscience_node_paper(){
 			),
 			'required' => 1,
 	),
-//	array(
-//    	'field_name' => 'authorname',
-//    	'label' => 'Author',  
-//    	'entity_type' => 'node', 
-//      'bundle' => 'paper',  
-//   		'widget' => array(
-//   		'type' => 'text_textfield',
-//   		'weight' => 1, 
-//			),
-//			'required' =>1,
-//	),
+	array(
+    	'field_name' => 'authorname',
+    	'label' => 'Author(s)',  
+    	'entity_type' => 'node', 
+      'bundle' => 'paper',  
+   		'widget' => array(
+        'type' => 'text_textfield',
+        'weight' => 1, 
+			),
+			'required' =>1,
+	),
 	array(
     	'field_name' => 'abstract',
     	'label' => 'Abstract',  
