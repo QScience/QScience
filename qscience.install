@@ -236,13 +236,13 @@ function qscience_node_paper(){
     	'entity_type' => 'node', 
       'bundle' => 'paper',
       'settings' => array(
-        'file_extensions' => 'doc txt pdf ps rtf',
+        'file_extensions' => 'pdf',
       ),
    		'widget' => array(
    		  'type' => 'file_generic',
-     		'weight' => 1,
+     		'weight' => -10,
 			),
-			'required' =>1,
+			'required' => 1,
 	),
 //	array(
 //    	'field_name' => 'authorname',
