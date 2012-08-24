@@ -231,7 +231,7 @@ function qscience_node_paper(){
 
 	array(
     	'field_name' => 'field_paper_upload',
-    	'label' => 'Upload', 
+    	'label' => 'Paper', 
 			'description'=>'Upload the paper.', 
     	'entity_type' => 'node', 
       'bundle' => 'paper',
