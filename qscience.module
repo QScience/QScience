@@ -1,0 +1,190 @@
+<?php
+function qscience_menu() {
+  $items = array();
+
+  $items['papers/popular'] = array(
+    'title' => 'Papers',
+    'description' => 'Papers list',
+    'page callback' => 'paper_sort_filter',
+//    'page arguments' => array(2,3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Menu callback; Generate a listing of promoted papers.
+ */
+function paper_sort_filter() {
+//	$query = drupal_get_query_parameters($_GET, array());
+	if(isset($_GET['order'])){
+		$sort_type=$_GET['order'];
+	}else{
+		$sort_type='qtr';
+	}
+	if(isset($_GET['period'])){
+		$time=$_GET['period'];
+	}else{
+		$time='month';
+	}
+	
+    switch ( $sort_type ) {
+	case 'vote':
+		$stype=1;
+		break;
+	case 'download':
+		$stype=2;
+		break;
+	case 'view':
+		$stype=3;
+		break;
+	case 'qtr':
+		$stype=4;
+		break;
+		
+	default:
+	$stype=4;
+		break;
+	}
+    
+    switch ( $time ) {
+	case 'year':
+		$ctime=365*24*3600;
+		break;
+	case '6month':
+		$ctime=182*24*3600;
+		break;
+	case 'month':
+		$ctime=30*24*3600;
+		break;
+	case 'week':
+		$ctime=7*24*3600;
+		break;
+		
+	default:
+	$ctime=30*24*3600;
+		break;
+	}
+	if($stype<=3){
+	/*$sql='select n.nid, n.sticky, n.created, a.num from {node} as n LEFT join (select nid, count(*) as num from {qtr_actions} ' .
+			'where action_type='.$stype.' and timestamp >'.(time()-$ctime).' group by nid) as a on ' .
+			' n.nid = a.nid where n.promote=1 and n.status=1 and ' .
+    		'(n.type = \'paper\' or n.type = \'paper_from_arxiv\') order by a.num DESC,n.sticky DESC, n.created DESC';*/
+    	 $select = db_select('node', 'n')->extend('PagerDefault');
+    $select->leftJoin('qtr_actions', 'a', 'a.nid=n.nid and a.action_type='.$stype.' and a.timestamp >'.(time()-$ctime));
+    $select->fields('n', array('nid', 'sticky', 'created'))
+    ->addExpression('COUNT(n.nid)', 'node_count');
+    $select->condition('n.promote', 1)
+    ->condition('n.status', 1)
+    ->condition('n.type', array('paper','paper_from_arxiv'),'in')
+    ->groupBy('n.nid')
+    ->orderBy('node_count', 'DESC')
+    ->orderBy('n.sticky', 'DESC')
+    ->orderBy('n.created', 'DESC');
+    $select->limit(variable_get('default_nodes_main', 10))
+    ->addTag('node_access');	
+	}else{
+  /*  $sql='select n.nid, n.sticky, n.created, q.quality from {node} as n LEFT join {qtr_quality} as q on n.nid = q.nid where n.promote=1 and n.status=1 and ' .
+    		'(n.type = \'paper\' or n.type = \'paper_from_arxiv\') order by q.quality DESC,n.sticky DESC, n.created DESC';*/
+       	 $select = db_select('node', 'n')->extend('PagerDefault');
+    $select->leftJoin('qtr_quality', 'q', 'q.nid=n.nid');
+    $select->fields('n', array('nid', 'sticky', 'created'))->fields('q', array('quality'));
+    $select->condition('n.promote', 1)
+    ->condition('n.status', 1)
+    ->condition('n.type', array('paper','paper_from_arxiv'),'in')
+    ->orderBy('q.quality', 'DESC')
+    ->orderBy('n.sticky', 'DESC')
+    ->orderBy('n.created', 'DESC');
+    $select->limit(variable_get('default_nodes_main', 10))
+    ->addTag('node_access');
+	}
+ // $nids=db_query($sql)->fetchCol();
+   $nids = $select->execute()->fetchCol();
+  $output = '<h2 class="base4font">Papers</h2>';
+	$output.='<div class="rank">
+<form method="get" action="" id="period">
+		<input type="hidden" name="q" value="papers/popular"/>
+		Sort by most <select onchange="javascript:submit();" name="order" id="order" size="1">
+		<option ';
+		if($stype==4){
+			$output.='selected="selected"';
+		}
+		$output.=' value="qtr">qtr</option>
+		<option ';
+		if($stype==1){
+			$output.='selected="selected"';
+		}
+		$output.=' value="vote">votes</option>
+	<option ';
+	if($stype==2){
+			$output.=' selected="selected"';
+		}
+	$output.='value="download">downloads</option>
+	<option ';
+	if($stype==3){
+			$output.='selected="selected"';
+		}
+	$output.=' value="view">views</option>
+</select>  in the last <select';
+if($stype==4){
+	$output.=' disabled="disabled"';
+}
+$output.=' onchange="javascript:submit();" name="period" id="period" size="1">
+	<option ';
+	if($time=='week'){
+			$output.='selected="selected"';
+		}
+		$output.=' value="week">week</option>
+	<option ' ;
+	if($time=='month'){
+			$output.='selected="selected"';
+		}
+		$output.=' value="month">month</option>
+	<option ' ;
+	if($time=='6month'){
+			$output.='selected="selected"';
+		}
+		$output.=' value="6month">6 months</option>
+	<option ';
+	if($time=='year'){
+		$output.='selected="selected"';
+	}
+		$output.=' value="year">year</option>
+	</select> </form>
+</div>';
+  $build['title']=array(
+      '#markup' => $output,
+    );
+  if (!empty($nids)) {
+    $nodes = node_load_multiple($nids);
+    $build['content']= node_view_multiple($nodes);
+
+    // 'rss.xml' is a path, not a file, registered in node_menu().
+    drupal_add_feed('rss.xml', variable_get('site_name', 'Drupal') . ' ' . t('RSS'));
+    $build['content']['pager'] = array(
+      '#theme' => 'pager',
+      '#weight' => 5,
+    );
+    drupal_set_title('');
+  }
+  else {
+
+    $default_message = '<p>' . t('No paper has been created yet.') . '</p>';
+
+    $default_links = array();
+    if (_node_add_access()) {
+      $default_links[] = l(t('Add new content'), 'node/add');
+    }
+    if (!empty($default_links)) {
+      $default_message .= theme('item_list', array('items' => $default_links));
+    }
+
+    $build['default_message'] = array(
+      '#markup' => $default_message,
+      '#prefix' => '<div id="first-time">',
+      '#suffix' => '</div>',
+    );
+  }
+  return $build;
+}

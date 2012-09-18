@@ -4,6 +4,7 @@ dependencies[] = patterns
 dependencies[] = macro
 dependencies[] = date
 dependencies[] = arxiv
+dependencies[] = qtr
 
 
 core = 7.x
