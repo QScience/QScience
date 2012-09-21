@@ -28,3 +28,29 @@ function qscience_paper_uploaded($file) {
   }
 }
 
+function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
+  drupal_add_js(drupal_get_path('module', 'qscience') . '/js/qscience.js', 'file');
+  
+  //$form['']
+
+  $form['authors']['author_1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Author'),
+    '#weight' => 3,
+  );
+
+  $form['authors']['author_adder'] = array(
+    '#type' => 'button',
+    '#value' => t('Add author'),
+    '#weight' => 4,
+    '#attributes' => array(
+      'onclick' => 'return hw();',
+    ),
+  );
+
+  $form['#submit']['paper_submit'] = array();
+}
+
+function paper_submit() {
+  dvm('submitted');
+}

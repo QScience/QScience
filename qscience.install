@@ -690,6 +690,27 @@ function qscience_author_autotitle() {
   variable_set('ant_php_author', 1); 
 }
 
+function qscience_relation_create() {
+  $param = array(
+    'relation_type' => 'belongs_to',
+    'min_arity' => '2',
+    'max_arity' => '2',
+    'label' => 'belongs to',
+    'reverse_label' => '',
+    'directional' => 0,
+    'transitive' => 0,
+    'r_unique' => 0,
+    'source_bundles' => array(
+      'node:author' => 'node:author',
+      'node:paper' => 'node:paper',
+    ),
+    'target_bundles' => array(
+    ),
+  );
+
+  relation_type_save($param);
+}
+
 /**
  * Implements hook_install().
  */
@@ -707,6 +728,8 @@ function qscience_install() {
   qscience_node_author();
 
   qscience_author_autotitle();
+
+  qscience_relation_create();
 }
 
 /**
