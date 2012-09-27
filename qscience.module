@@ -2,17 +2,7 @@
 
 ini_set('xdebug.max_nesting_level', 600);
 
-/**
- * Implements hook_insert
- */
-function qscience_node_insert($node) {
-  if ($node->type === 'author') {
-    //qscience_paper_uploaded();
-  }
-  else {
-    //watchdog('qscience', 'NOT author node inserting...');
-  }
-}
+$author_node_ids = array();
 
 /**
  * Implements file_insert
@@ -53,8 +43,42 @@ function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
   $form['#submit'][] = 'qscience_add_author_node_by_hand';
 }
 
+function qscience_node_insert($node) {
+  global $author_node_ids, $user;
+
+  if (isset($node->form_id) && $node->form_id === 'paper_node_form') {
+    foreach ($author_node_ids as $aid => $name) {
+      $relation = new stdClass();
+      $relation->is_new = TRUE;
+      $relation->relation_type = 'belongs_to';
+      $relation->uid = $user->uid;
+      $relation->endpoints = array(
+        'und' => array(
+          array(
+            'entity_type' => 'node',
+            'entity_id' => $aid,
+            'entity_bundle' => 'author',
+            'r_index' => 0,
+            'entity_label' => 'author: ' . $name,
+            'entity_key' => 'node:' . $aid,
+          ),
+          array(
+            'entity_type' => 'node',
+            'entity_id' => $node->nid,
+            'entity_bundle' => 'paper',
+            'r_index' => 1,
+            'entity_label' => 'paper: ' . $node->title,
+            'entity_key' => 'node:' . $node->nid,
+          ),
+        ),
+      );
+      relation_save($relation);
+    }
+  }
+}
+
 function qscience_add_author_node_by_hand($form, &$form_state) {
-  global $user;
+  global $user, $author_node_ids;
 
   $i = 1;
   while (isset($_POST['author_'.$i])) {
@@ -71,7 +95,7 @@ function qscience_add_author_node_by_hand($form, &$form_state) {
     $node->type = 'author';
     $node->title = $fname . ' ' .$lname;
     $node->uid = $user->uid;
-    $path = 'content/pcn_' . date('YmdHis');
+    //$path = 'content/pcn_' . date('YmdHis');
     //$node->path = array('alias' => $path);
     node_object_prepare($node);
        
@@ -81,6 +105,7 @@ function qscience_add_author_node_by_hand($form, &$form_state) {
     
     $node = node_submit($node);
     node_save($node);
+    $author_node_ids[$node->nid] = $name;
     $i++;
   }
 }
