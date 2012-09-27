@@ -244,7 +244,7 @@ function qscience_node_paper(){
 			),
 			'required' => 1,
 	),
-	array(
+	/*array(
     	'field_name' => 'authorname',
     	'label' => 'Author(s)',  
     	'entity_type' => 'node', 
@@ -254,7 +254,7 @@ function qscience_node_paper(){
         'weight' => 1, 
 			),
 			'required' =>1,
-	),
+    ),*/
 	array(
     	'field_name' => 'abstract',
     	'label' => 'Abstract',  
@@ -796,28 +796,3 @@ function qscience_uninstall() {
 	menu_rebuild();
 }
 
-/**
- *
- * <?php 
- * $ret = '';
- * foreach ($node->first_name as $lang) {
- *   foreach ($lang as $key => $val) {
- *       $ret .= $val['value'];
- *           break;
- *             }
- *               break;
- *               }
- *               $ret .= ' ';
- *               foreach ($node->last_name as $lang) {
- *                 foreach ($lang as $key => $val) {
- *                     $ret .= $val['value'];
- *                         break;
- *                           }
- *                             break;
- *                             }
- *                             return $ret;
- *                             ?>
- *
- *
- *
- */

@@ -1,5 +1,7 @@
 <?php
 
+ini_set('xdebug.max_nesting_level', 600);
+
 /**
  * Implements hook_insert
  */
@@ -48,9 +50,38 @@ function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
     ),
   );
 
-  $form['#submit']['paper_submit'] = array();
+  $form['#submit'][] = 'qscience_add_author_node_by_hand';
 }
 
-function paper_submit() {
-  dvm('submitted');
+function qscience_add_author_node_by_hand($form, &$form_state) {
+  global $user;
+
+  $i = 1;
+  while (isset($_POST['author_'.$i])) {
+    $name = trim($_POST['author_'.$i]);
+    if (strlen($name) == 0) {
+      $i++;
+      continue;
+    }
+    $name = explode(" ", $name);
+    $fname = isset($name[0]) ? $name[0] : 'unknown';
+    $lname = isset($name[1]) ? $name[1] : 'unknown';
+
+    $node = new stdClass();
+    $node->type = 'author';
+    $node->title = $fname . ' ' .$lname;
+    $node->uid = $user->uid;
+    $path = 'content/pcn_' . date('YmdHis');
+    //$node->path = array('alias' => $path);
+    node_object_prepare($node);
+       
+    $node->language = LANGUAGE_NONE;
+    $node->first_name[$node->language][0]['value'] = $fname;
+    $node->last_name[$node->language][0]['value'] = $lname;
+    
+    $node = node_submit($node);
+    node_save($node);
+    $i++;
+  }
 }
+
