@@ -16,7 +16,6 @@
           $('#edit-abstract-und-0-value').val(Drupal.settings.pdfparser.abstr);
         }
         if (Drupal.settings.pdfparser.authors) {
-          console.log('authors.length: ' + Drupal.settings.pdfparser.authors.length);
           for (var i = 0; i < Drupal.settings.pdfparser.authors.length; i++) {
             addAuthor(i+1, Drupal.settings.pdfparser.authors[i]);
           }
@@ -27,6 +26,12 @@
       $('#edit-abstract-und-0-value').val('');
       $('#edit-authorname-und-0-value').val('');
       $('#edit-field-paper-upload div.messages').slideUp(400);
+      var i = 2;
+      while (jQuery('div.form-item-author-'+i).length != 0) {
+        jQuery('div.form-item-author-'+i).remove();
+        i++;
+      }
+      jQuery('div.form-item-author-1 input').val('');
     }
   });
 })(jQuery);
