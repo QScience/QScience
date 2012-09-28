@@ -1,40 +1,37 @@
 (function ($) {
-  $(document).ready(function() {
-    console.log('pdfparser loaded...');
-  });
-  
   $(document).ajaxComplete(function(e, xhr, settings) {
-//    if (settings.extraData._triggering_element_name == 'field_paper_upload_und_0_upload_button') {
-//      var num = $('#edit-field-paper-upload div.messages').length;
-//      var i = 1;
-//      $('#edit-field-paper-upload div.messages').each(function() {
-//        if (i >= num) return;
-//        $(this).slideUp(1000);
-//        i++;
-//      });
-//      if (Drupal.settings && Drupal.settings.pdfparser) {
-//        if (Drupal.settings.pdfparser.title) {
-//          $('#edit-title').val(Drupal.settings.pdfparser.title);
-//        }
-//        if (Drupal.settings.pdfparser.abstr) {
-//          $('#edit-abstract-und-0-value').val(Drupal.settings.pdfparser.abstr);
-//        }
-//        if (Drupal.settings.pdfparser.authors) {
-//          $('#edit-authorname-und-0-value').val(Drupal.settings.pdfparser.authors);
-//        }
-//      }
-//    } else if (settings.extraData._triggering_element_name == 'field_paper_upload_und_0_remove_button') {
-//      $('#edit-title').val('');
-//      $('#edit-abstract-und-0-value').val('');
-//      $('#edit-authorname-und-0-value').val('');
-//      $('#edit-field-paper-upload div.messages').slideUp(400);
-//    }
-    
+    if (settings.extraData._triggering_element_name == 'field_paper_upload_und_0_upload_button') {
+      var num = $('#edit-field-paper-upload div.messages').length;
+      var i = 1;
+      $('#edit-field-paper-upload div.messages').each(function() {
+        if (i >= num) return;
+        $(this).slideUp(1000);
+        i++;
+      });
+      if (Drupal.settings && Drupal.settings.pdfparser) {
+        if (Drupal.settings.pdfparser.title) {
+          $('#edit-title').val(Drupal.settings.pdfparser.title);
+        }
+        if (Drupal.settings.pdfparser.abstr) {
+          $('#edit-abstract-und-0-value').val(Drupal.settings.pdfparser.abstr);
+        }
+        if (Drupal.settings.pdfparser.authors) {
+          console.log('authors.length: ' + Drupal.settings.pdfparser.authors.length);
+          for (var i = 0; i < Drupal.settings.pdfparser.authors.length; i++) {
+            addAuthor(i+1, Drupal.settings.pdfparser.authors[i]);
+          }
+        }
+      }
+    } else if (settings.extraData._triggering_element_name == 'field_paper_upload_und_0_remove_button') {
+      $('#edit-title').val('');
+      $('#edit-abstract-und-0-value').val('');
+      $('#edit-authorname-und-0-value').val('');
+      $('#edit-field-paper-upload div.messages').slideUp(400);
+    }
   });
-
 })(jQuery);
 
-function hw() {
+function addAuthor(i, name) {
   var num = 1;
   while (true) {
     if (jQuery('div.form-item-author-'+num).length == 0) {
@@ -42,15 +39,32 @@ function hw() {
     } else {
       num++;
     }
-    
   }
+  if (typeof i != 'undefined' && typeof name != 'undefined') {
+    if (i >= num) {
+      makeAuthorCopy(num, name);
+    } else {
+      jQuery('div.form-item-author-'+i+' input').val(name);
+    }
+  } else {
+    makeAuthorCopy(num);
+  }
+
+  return false;
+}
+
+function makeAuthorCopy(num, name) {
   var copy = jQuery('div.form-item-author-1').clone();
+  if (typeof name != 'undefined') {
+    copy.find('input').val(name);
+  } else {
+    copy.find('input').val('');
+  }
   copy.removeClass('form-item-author-1').addClass('form-item-author-'+num);
   copy.find('label').attr('for', 'edit-author-'+num);
   copy.find('#edit-author-1').attr('id', 'edit-author-'+num).attr('name', 'author_'+num);
 
-
   jQuery('#edit-author-adder').before(copy);
 
-  return false;
+  
 }

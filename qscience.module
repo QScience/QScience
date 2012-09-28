@@ -36,7 +36,7 @@ function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
     '#value' => t('Add author'),
     '#weight' => 4,
     '#attributes' => array(
-      'onclick' => 'return hw();',
+      'onclick' => 'return addAuthor();',
     ),
   );
 
