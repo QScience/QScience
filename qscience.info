@@ -6,6 +6,7 @@ dependencies[] = date
 dependencies[] = arxiv
 dependencies[] = auto_nodetitle
 dependencies[] = relation
+dependencies[] = views
 
 core = 7.x
 version = "7.x-1.0"

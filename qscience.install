@@ -711,6 +711,94 @@ function qscience_relation_create() {
   relation_type_save($param);
 }
 
+function qscience_views_block_setup() {
+  $arr = array(
+    'module' => 'views',
+    'delta' => 'authors_block_3-block',
+    'title' => 'asdasd',
+    'regions' => array(
+      'bartik' => 'content',
+      'seven' => 'content',
+    ),
+    'visibility' => '0',
+    'pages' => '',
+    'roles' => array(
+      1 => 0,
+      2 => 0,
+      3 => 0,
+    ),
+    'custom' => '0',
+    'types' => array(
+      'paper' => 'paper',
+      'article' => 0,
+      'author' => 0,
+      'page' => 0,
+      'bookreview' => 0,
+      'editorial' => 0,
+      'event' => 0,
+      'institution' => 0,
+      'journal' => 0,
+      'news' => 0,
+      'paper_from_arxiv' => 0,
+    ),
+    'visibility__active_tab' => 'edit-path',
+    'submit' => 'Save block',
+    'form_build_id' => 'form-Vz2aoR-xy7a2L9I9-SwyGPl3Y6bawR9Cgj5xdJPe72o',
+    'form_token' => 'CYBIGJN0cyORKXUvfhpjj9HakRIkfj8cPmuQ-ylQFyc',
+    'form_id' => 'block_admin_configure',
+    'op' => 'Save block',
+  );
+  $form = array();
+  $form['values'] = $arr;
+  qscience_views_block_save($form);
+}
+
+function qscience_views_block_save($form) {
+  $transaction = db_transaction();
+  try {
+    db_update('block')
+      ->fields(
+        array(
+          'visibility' => 0,
+          'pages' => '',
+          'custom' => 0,
+          'title' => 'Papers',
+        )
+      )
+      ->condition('module', 'views')
+      ->condition('delta', 'authors_block_3-block')
+      ->execute();
+
+    db_delete('block_role')
+      ->condition('module', 'views')
+      ->condition('delta', 'authors_block_3-block')
+      ->execute();
+
+    // Store regions per theme for this block
+    foreach (array('seven' => 'content', 'bartik' => 'content') as $theme => $region) {
+      db_merge('block')
+        ->key(array('theme' => $theme, 'delta' => 'authors_block_3-block', 'module' => 'views'))
+        ->fields(
+          array(
+            'region' => ($region == BLOCK_REGION_NONE ? '' : $region),
+            'pages' => '',
+            'status' => (int) ($region != BLOCK_REGION_NONE),
+          )
+        )
+      ->execute();
+    }
+
+    module_invoke('views', 'block_save', 'authors_block_3-block', $form['values']);
+  } catch (Exception $e) {
+    $transaction->rollback();
+    watchdog_exception('block', $e);
+    throw $e;
+  }
+  //drupal_set_message(t('The block configuration has been saved.'));
+  cache_clear_all();
+  //$form_state['redirect'] = 'admin/structure/block';
+}
+
 /**
  * Implements hook_install().
  */
@@ -730,6 +818,8 @@ function qscience_install() {
   qscience_author_autotitle();
 
   qscience_relation_create();
+
+  qscience_views_block_setup();
 }
 
 /**
