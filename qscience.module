@@ -229,7 +229,7 @@ function qscience_block_view_blog_recent_alter(&$data, $block) {
       ->range(0, variable_get('blog_block_count', 10))
       ->addTag('node_access')
       ->execute()->fetchCol();
-      $data['subject'] = t('Latest BLogs');
+      $data['subject'] = t('Latest Blogs');
       if (!empty($result)) {
     	$nodes = node_load_multiple($result);
     	$data['content']['blog_list'] = node_view_multiple($nodes,'teaser');
