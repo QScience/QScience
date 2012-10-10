@@ -226,7 +226,7 @@ function qscience_block_view_blog_recent_alter(&$data, $block) {
       ->condition('type', 'blog')
       ->condition('status', 1)
       ->orderBy('created', 'DESC')
-      ->range(0, variable_get('blog_block_count', 10))
+      ->range(0, variable_get('blog_block_count', 5))
       ->addTag('node_access')
       ->execute()->fetchCol();
       $data['subject'] = t('Latest Blogs');

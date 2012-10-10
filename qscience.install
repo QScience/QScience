@@ -555,6 +555,16 @@ function qscience_node_news(){
 			),
 			'required' =>1,
 	),
+		array(
+    	'field_name' => 'website',
+    	'label' => 'News website',  
+    	'entity_type' => 'node', 
+      'bundle' => 'news',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 2, 
+			),
+	),
 	);
 
 	foreach($newsinstances as $instance){
