@@ -107,9 +107,15 @@ function paper_sort_filter() {
     $select->limit(variable_get('default_nodes_main', 10))
     ->addTag('node_access');
 	}
- // $nids=db_query($sql)->fetchCol();
+ /* $nids=db_query($sql)->fetchCol();
+  * this is for option selected in top paper <option ';
+	if($stype==3){
+			$output.='selected="selected"';
+		}
+	$output.=' value="view">views</option> */
+ 
    $nids = $select->execute()->fetchCol();
-  $output = '<div class="border_title" id="page-title"><h2 class="base4font man2_pic_h2">Most popular papers</h2><a class="plus_minus_link" href="'.url('add/paper').'">Add</a></div>';
+  $output = '<div class="border_title" id="page-title"><h2 class="base4font man2_pic_h2">Top papers</h2><a class="plus_minus_link" href="'.url('add/paper').'">Add</a></div>';
 	$output.='<div class="rank" style="margin:10px;text-align: right;">
 <form method="get" action="" id="period">
 		<input type="hidden" name="q" value="papers/popular"/>
@@ -118,22 +124,18 @@ function paper_sort_filter() {
 		if($stype==4){
 			$output.='selected="selected"';
 		}
-		$output.=' value="qtr">qtr</option>
+		$output.=' value="qtr">Top value</option>
 		<option ';
 		if($stype==1){
 			$output.='selected="selected"';
 		}
-		$output.=' value="vote">votes</option>
-	<option ';
+		$output.=' value="vote">Recent votes</option>
+ 	<option ';
 	if($stype==2){
 			$output.=' selected="selected"';
 		}
-	$output.='value="download">downloads</option>
-	<option ';
-	if($stype==3){
-			$output.='selected="selected"';
-		}
-	$output.=' value="view">views</option>
+	$output.='value="download">Recent downloads</option>
+	
 </select>  in the last <select';
 if($stype==4){
 	$output.=' disabled="disabled"';

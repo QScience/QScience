@@ -102,7 +102,7 @@ function qscience_user_field(){
 	),
 	array(
     	'field_name' => 'research_fields',
-    	'label' => 'Field(s) of Research (e.g. Economics, Computer Science, etc.).', 
+    	'label' => 'Field(s) of Research', 
     	'entity_type' => 'user', 
       'bundle' => 'user',  
    		'widget' => array(
