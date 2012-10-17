@@ -1,11 +1,11 @@
 <?php
 
 $view = new view();
-$view->name = 'authors_block_3';
+$view->name = 'authors_block_4';
 $view->description = '';
 $view->tag = 'default';
 $view->base_table = 'node';
-$view->human_name = 'Authors Block 3';
+$view->human_name = 'Authors Block 4';
 $view->core = 7;
 $view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */

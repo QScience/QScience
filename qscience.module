@@ -3,6 +3,7 @@
 ini_set('xdebug.max_nesting_level', 600);
 
 $author_node_ids = array();
+$paper_node_ids = array();
 
 /**
  * Implements file_insert
@@ -40,11 +41,27 @@ function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
     ),
   );
 
+  $form['citations']['citation_1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Citation'),
+    '#weight' => 5,
+  );
+
+  $form['citations']['citation_adder'] = array(
+    '#type' => 'button',
+    '#value' => t('Add citation'),
+    '#weight' => 6,
+    '#attributes' => array(
+      'onclick' => 'return addCitation();',
+    ),
+  );
+
   $form['#submit'][] = 'qscience_add_author_node_by_hand';
 }
 
 function qscience_node_insert($node) {
-  global $author_node_ids, $user;
+  global $author_node_ids, $paper_node_ids, $user;
+
 
   if (isset($node->form_id) && $node->form_id === 'paper_node_form') {
     foreach ($author_node_ids as $aid => $name) {
@@ -74,11 +91,38 @@ function qscience_node_insert($node) {
       );
       relation_save($relation);
     }
+    foreach ($paper_node_ids as $pid => $title) {
+      $relation = new stdClass();
+      $relation->is_new = TRUE;
+      $relation->relation_type = 'references_to';
+      $relation->uid = $user->uid;
+      $relation->endpoints = array(
+        'und' => array(
+          array(
+            'entity_type' => 'node',
+            'entity_id' => $pid,
+            'entity_bundle' => 'paper',
+            'r_index' => 0,
+            'entity_label' => 'paper: ' . $title,
+            'entity_key' => 'node:' . $pid,
+          ),
+          array(
+            'entity_type' => 'node',
+            'entity_id' => $node->nid,
+            'entity_bundle' => 'paper',
+            'r_index' => 1,
+            'entity_label' => 'paper: ' . $node->title,
+            'entity_key' => 'node:' . $node->nid,
+          ),
+        ),
+      );
+      relation_save($relation);
+    }
   }
 }
 
 function qscience_add_author_node_by_hand($form, &$form_state) {
-  global $user, $author_node_ids;
+  global $user, $author_node_ids, $paper_node_ids;
 
   $i = 1;
   while (isset($_POST['author_'.$i])) {
@@ -106,6 +150,28 @@ function qscience_add_author_node_by_hand($form, &$form_state) {
     $node = node_submit($node);
     node_save($node);
     $author_node_ids[$node->nid] = $name;
+    $i++;
+  }
+  $i = 1;
+  while (isset($_POST['citation_'.$i])) {
+    $title = trim($_POST['citation_'.$i]);
+    if (strlen($title) == 0) {
+      $i++;
+      continue;
+    }
+    $node = new stdClass();
+    $node->type = 'paper';
+    $node->title = $title;
+    $node->uid = $user->uid;
+    node_object_prepare($node);
+       
+    $node->language = LANGUAGE_NONE;
+    $node->abstract = '';
+    $node->journal = '';
+    
+    $node = node_submit($node);
+    node_save($node);
+    $paper_node_ids[$node->nid] = $title;
     $i++;
   }
 }

@@ -709,6 +709,25 @@ function qscience_relation_create() {
   );
 
   relation_type_save($param);
+  
+  $param = array(
+    'relation_type' => 'references_to',
+    'min_arity' => '2',
+    'max_arity' => '2',
+    'label' => 'references to',
+    'reverse_label' => '',
+    'directional' => 0,
+    'transitive' => 0,
+    'r_unique' => 0,
+    'source_bundles' => array(
+      'node:paper' => 'node:paper',
+      'node:paper' => 'node:paper',
+    ),
+    'target_bundles' => array(
+    ),
+  );
+
+  relation_type_save($param);
 }
 
 function qscience_views_block_setup() {
@@ -819,7 +838,7 @@ function qscience_install() {
 
   qscience_relation_create();
 
-  qscience_views_block_setup();
+  //qscience_views_block_setup();
 }
 
 /**

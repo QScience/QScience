@@ -14,7 +14,6 @@ function qscience_views_default_views() {
 }
 
 function qscience_block_info() {
-  dvm('called');
   $info = array(
     'papers_block_3-block' => array(
       'info' => t('Papers Block 2'),
