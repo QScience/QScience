@@ -216,14 +216,14 @@ function qscience_create_field(){
 }
 
 function qscience_node_paper(){
-	$type=array(
-      'type' => 'paper', 
-      'name' => t('Paper'), 
-      'base' => 'node_content', 
-      'description' => t("Scientific paper type which allows users to vote."), 
-      'custom' => 1, 
-      'modified' => 1, 
-      'locked' => 0,
+	$type = array(
+    'type' => 'paper', 
+    'name' => t('Paper'), 
+    'base' => 'node_content', 
+    'description' => t("Scientific paper type which allows users to vote."), 
+    'custom' => 1, 
+    'modified' => 1, 
+    'locked' => 0,
 	);
 	$type = node_type_set_defaults($type);
 	node_type_save($type);
@@ -730,6 +730,76 @@ function qscience_relation_create() {
   relation_type_save($param);
 }
 
+function qscience_author_reference_field_create() {
+  $field = array(
+    'field_name' => 'author_reference',
+    'type' => 'entityreference',
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler_settings' => array('target_bundles' => array('author')),
+    ),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'author_reference',
+    'entity_type' => 'node',
+    'bundle' => 'paper',
+    'label' => t('Authors'),
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+    ),
+    'settings' => array(
+      'target_type' => 'node',
+      'handler_settings' => array('target_bundles' => array('author')),
+    ),
+    'display' => array(
+      'default' => array(
+        'settings' => array(
+          'link' => 1
+        )
+      )
+    )
+  );
+  field_create_instance($instance);
+}
+
+function qscience_citation_reference_field_create() {
+  $field = array(
+    'field_name' => 'citation_reference',
+    'type' => 'entityreference',
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler_settings' => array('target_bundles' => array('paper')),
+    ),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'citation_reference',
+    'entity_type' => 'node',
+    'bundle' => 'paper',
+    'label' => t('Papers'),
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+    ),
+    'settings' => array(
+      'target_type' => 'node',
+      'handler_settings' => array('target_bundles' => array('paper')),
+    ),
+    'display' => array(
+      'default' => array(
+        'settings' => array(
+          'link' => 1
+        )
+      )
+    )
+  );
+  field_create_instance($instance);
+}
+
 function qscience_views_block_setup() {
   $arr = array(
     'module' => 'views',
@@ -781,7 +851,7 @@ function qscience_views_block_save($form) {
           'visibility' => 0,
           'pages' => '',
           'custom' => 0,
-          'title' => 'Papers',
+          'title' => 'Citations',
         )
       )
       ->condition('module', 'views')
@@ -824,7 +894,6 @@ function qscience_views_block_save($form) {
 function qscience_install() {
 	qscience_user_field();
 	qscience_create_field();
-	qscience_node_paper();
 	qscience_node_arxiv();
 	qscience_node_bookreview();
 	qscience_node_institution();
@@ -833,10 +902,12 @@ function qscience_install() {
 	qscience_node_news();
 	qscience_node_editorial();
   qscience_node_author();
+	qscience_node_paper();
 
   qscience_author_autotitle();
 
-  qscience_relation_create();
+  qscience_author_reference_field_create();
+  qscience_citation_reference_field_create();
 
   //qscience_views_block_setup();
 }
@@ -865,7 +936,10 @@ function qscience_uninstall() {
 	field_delete_field('field_serial_no');
 	field_delete_field('field_prefix');
 	field_delete_field('field_upload');
-	field_delete_field('field_reviewer');
+  field_delete_field('field_reviewer');
+  field_delete_field('paper_reference');
+  field_delete_field('author_reference');
+  field_delete_field('citation_reference');
 
 	$types = array(
 	array(

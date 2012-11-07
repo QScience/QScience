@@ -5,8 +5,10 @@ dependencies[] = macro
 dependencies[] = date
 dependencies[] = arxiv
 dependencies[] = auto_nodetitle
-dependencies[] = relation
+dependencies[] = entity
+dependencies[] = entityreference
 dependencies[] = views
+dependencies[] = eva
 
 core = 7.x
 version = "7.x-1.0"

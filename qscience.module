@@ -21,7 +21,7 @@ function qscience_paper_uploaded($file) {
   }
 }
 
-function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
+function qscience_form_paper_node_form_alter_deprecated(&$form, &$form_state, $form_id) {
   drupal_add_js(drupal_get_path('module', 'qscience') . '/js/qscience.js', 'file');
   
   //$form['']
@@ -59,7 +59,7 @@ function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
   $form['#submit'][] = 'qscience_add_author_node_by_hand';
 }
 
-function qscience_node_insert($node) {
+function qscience_node_insert_deprecated($node) {
   global $author_node_ids, $paper_node_ids, $user;
 
 
@@ -121,7 +121,7 @@ function qscience_node_insert($node) {
   }
 }
 
-function qscience_add_author_node_by_hand($form, &$form_state) {
+function qscience_add_author_node_by_hand_deprecated($form, &$form_state) {
   global $user, $author_node_ids, $paper_node_ids;
 
   $i = 1;

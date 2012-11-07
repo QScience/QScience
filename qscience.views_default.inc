@@ -4,10 +4,10 @@
 function qscience_views_default_views() {
   $v = array();
 
-  include(dirname(__FILE__) . '/views_config/authors_block.inc');
+  include(dirname(__FILE__) . '/views_config/papers_backlink.inc');
   $v[$view->name] = $view;
 
-  include(dirname(__FILE__) . '/views_config/papers_block.inc');
+  include(dirname(__FILE__) . '/views_config/reference_backlink.inc');
   $v[$view->name] = $view;
 
   return $v;
