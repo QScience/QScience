@@ -33,7 +33,7 @@ function qscience_user_field(){
     	'settings' => array(
       	'allowed_values' => array(
       				'Professor'=>'Professor',
-      	                     'PostDoc'=>'PostDoc',
+      	                     'Postdoc'=>'Postdoc',
       	                      'PhD'=>'PhD',
       	                      'Others'=>'Others'),
 
