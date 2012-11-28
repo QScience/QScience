@@ -1,9 +1,49 @@
 <?php
 
-ini_set('xdebug.max_nesting_level', 600);
+//ini_set('xdebug.max_nesting_level', 600);
 
 $author_node_ids = array();
 $paper_node_ids = array();
+
+/**
+ * Implements node_create_for_REFERENCE_TYPE hook to able to create lazy referencing.
+ */
+function qscience_node_create_for_author_reference($node_title, $language) {
+  global $user;
+  
+  $node = new stdClass();
+  $node->title = $node_title;
+  $split = explode(" ", $node->title);
+  $first_name = isset($split[0]) ? $split[0] : 'unknown';
+  $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
+
+  $node->first_name = array(
+    $language => array(
+      array(
+        'value' => $first_name
+      )
+    )
+  );
+  $node->last_name = array(
+    $language => array(
+      array(
+        'value' => $last_name
+      )
+    )
+  );
+  $node->type = "author";
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = $language; // Or e.g. 'en' if locale is enabled
+  $node->uid = $user->uid;
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = 0; //(1 or 0): promoted to front page
+  $node->comment = 1; //2 = comments on, 1 = comments off
+
+  $node = node_submit($node); // Prepare node for saving
+  node_save($node);
+  
+  return $node->nid;
+}
 
 /**
  * Implements file_insert
