@@ -737,7 +737,10 @@ function qscience_author_reference_field_create() {
     'cardinality' => FIELD_CARDINALITY_UNLIMITED,
     'settings' => array(
       'target_type' => 'node',
-      'handler_settings' => array('target_bundles' => array('author')),
+      'handler_settings' => array(
+        'target_bundles' => array('author'),
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+      ),
     ),
   );
   field_create_field($field);
@@ -752,7 +755,10 @@ function qscience_author_reference_field_create() {
     ),
     'settings' => array(
       'target_type' => 'node',
-      'handler_settings' => array('target_bundles' => array('author')),
+      'handler_settings' => array(
+        'target_bundles' => array('author'),
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+      ),
     ),
     'display' => array(
       'default' => array(
@@ -772,7 +778,10 @@ function qscience_citation_reference_field_create() {
     'cardinality' => FIELD_CARDINALITY_UNLIMITED,
     'settings' => array(
       'target_type' => 'node',
-      'handler_settings' => array('target_bundles' => array('paper')),
+      'handler_settings' => array(
+        'target_bundles' => array('paper'),
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+      ),
     ),
   );
   field_create_field($field);
@@ -787,7 +796,10 @@ function qscience_citation_reference_field_create() {
     ),
     'settings' => array(
       'target_type' => 'node',
-      'handler_settings' => array('target_bundles' => array('paper')),
+      'handler_settings' => array(
+        'target_bundles' => array('paper'),
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+      ),
     ),
     'display' => array(
       'default' => array(
