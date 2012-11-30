@@ -739,7 +739,8 @@ function qscience_author_reference_field_create() {
       'target_type' => 'node',
       'handler_settings' => array(
         'target_bundles' => array('author'),
-        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference'),
+        'unique_reference' => array('unique_reference' => 'unique_reference'),
       ),
     ),
   );
@@ -757,7 +758,8 @@ function qscience_author_reference_field_create() {
       'target_type' => 'node',
       'handler_settings' => array(
         'target_bundles' => array('author'),
-        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference'),
+        'unique_reference' => array('unique_reference' => 'unique_reference'),
       ),
     ),
     'display' => array(
@@ -780,7 +782,8 @@ function qscience_citation_reference_field_create() {
       'target_type' => 'node',
       'handler_settings' => array(
         'target_bundles' => array('paper'),
-        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference'),
+        'unique_reference' => array('unique_reference' => 'unique_reference'),
       ),
     ),
   );
@@ -790,7 +793,7 @@ function qscience_citation_reference_field_create() {
     'field_name' => 'citation_reference',
     'entity_type' => 'node',
     'bundle' => 'paper',
-    'label' => t('Papers'),
+    'label' => t('Citations'),
     'widget' => array(
       'type' => 'entityreference_autocomplete',
     ),
@@ -798,7 +801,8 @@ function qscience_citation_reference_field_create() {
       'target_type' => 'node',
       'handler_settings' => array(
         'target_bundles' => array('paper'),
-        'lazy_reference' => array('lazy_reference' => 'lazy_reference')
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference'),
+        'unique_reference' => array('unique_reference' => 'unique_reference'),
       ),
     ),
     'display' => array(
