@@ -61,42 +61,9 @@ function qscience_paper_uploaded($file) {
   }
 }
 
-function qscience_form_paper_node_form_alter_deprecated(&$form, &$form_state, $form_id) {
-  drupal_add_js(drupal_get_path('module', 'qscience') . '/js/qscience.js', 'file');
-  
-  //$form['']
-
-  $form['authors']['author_1'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Author'),
-    '#weight' => 3,
-  );
-
-  $form['authors']['author_adder'] = array(
-    '#type' => 'button',
-    '#value' => t('Add author'),
-    '#weight' => 4,
-    '#attributes' => array(
-      'onclick' => 'return addAuthor();',
-    ),
-  );
-
-  $form['citations']['citation_1'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Citation'),
-    '#weight' => 5,
-  );
-
-  $form['citations']['citation_adder'] = array(
-    '#type' => 'button',
-    '#value' => t('Add citation'),
-    '#weight' => 6,
-    '#attributes' => array(
-      'onclick' => 'return addCitation();',
-    ),
-  );
-
-  $form['#submit'][] = 'qscience_add_author_node_by_hand';
+function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
+  dvm('form alter');
+  drupal_add_css(drupal_get_path('module', 'qscience') . '/css/qscience.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
 }
 
 function qscience_node_insert_deprecated($node) {
