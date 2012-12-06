@@ -46,6 +46,78 @@ function qscience_node_create_for_author_reference($node_title, $language) {
 }
 
 /**
+ * Implements node_create_for_REFERENCE_TYPE hook to able to create lazy referencing.
+ */
+function qscience_node_create_for_citation_reference($node_title, $language) {
+  global $user;
+  
+  $pos = strpos(strtolower($node_title), "[authors:");
+  $authors = array();
+  if ($pos !== FALSE) {
+    $authors = explode(",", substr($node_title, $pos + 9, strlen($node_title) - $pos - 10));
+    $node_title = substr($node_title, 0, $pos);
+  }
+//  dvm($authors);
+  $node = new stdClass();
+  $node->title = trim($node_title);
+  $node->type = "paper";
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = $language; // Or e.g. 'en' if locale is enabled
+  $node->uid = $user->uid;
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = 0; //(1 or 0): promoted to front page
+  $node->comment = 1; //2 = comments on, 1 = comments off
+
+  $node = node_submit($node); // Prepare node for saving
+   
+  foreach ($authors as $author) {
+    $author = trim($author);
+    $author_node = new stdClass();
+    $author_node->title = $author;
+    $split = explode(" ", $author);
+    $first_name = isset($split[0]) ? $split[0] : 'unknown';
+    $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
+
+    $author_node->first_name = array(
+      $language => array(
+        array(
+          'value' => $first_name
+        )
+      )
+    );
+    $author_node->last_name = array(
+      $language => array(
+        array(
+          'value' => $last_name
+        )
+      )
+    );
+    $author_node->type = "author";
+    node_object_prepare($author_node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+    $author_node->language = $language; // Or e.g. 'en' if locale is enabled
+    $author_node->uid = $user->uid;
+    $author_node->status = 1; //(1 or 0): published or not
+    $author_node->promote = 0; //(1 or 0): promoted to front page
+    $author_node->comment = 1; //2 = comments on, 1 = comments off
+
+    $author_node = node_submit($author_node); // Prepare node for saving
+    
+    node_save($author_node);
+    
+    if (!isset($node->author_reference[$language])) {
+      $node->author_reference[$language] = array();
+    }
+    $node->author_reference[$language][] = array(
+      'target_id' => $author_node->nid,
+    );
+  }
+  
+  node_save($node);  
+  
+  return $node->nid;
+}
+
+/**
  * Implements file_insert
  */
 function qscience_file_insert($file) {
@@ -61,42 +133,8 @@ function qscience_paper_uploaded($file) {
   }
 }
 
-function qscience_form_paper_node_form_alter_deprecated(&$form, &$form_state, $form_id) {
-  drupal_add_js(drupal_get_path('module', 'qscience') . '/js/qscience.js', 'file');
-  
-  //$form['']
-
-  $form['authors']['author_1'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Author'),
-    '#weight' => 3,
-  );
-
-  $form['authors']['author_adder'] = array(
-    '#type' => 'button',
-    '#value' => t('Add author'),
-    '#weight' => 4,
-    '#attributes' => array(
-      'onclick' => 'return addAuthor();',
-    ),
-  );
-
-  $form['citations']['citation_1'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Citation'),
-    '#weight' => 5,
-  );
-
-  $form['citations']['citation_adder'] = array(
-    '#type' => 'button',
-    '#value' => t('Add citation'),
-    '#weight' => 6,
-    '#attributes' => array(
-      'onclick' => 'return addCitation();',
-    ),
-  );
-
-  $form['#submit'][] = 'qscience_add_author_node_by_hand';
+function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
+  drupal_add_css(drupal_get_path('module', 'qscience') . '/css/qscience.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
 }
 
 function qscience_node_insert_deprecated($node) {
