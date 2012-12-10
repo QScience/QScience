@@ -1,10 +1,5 @@
 <?php
 
-//ini_set('xdebug.max_nesting_level', 600);
-
-$author_node_ids = array();
-$paper_node_ids = array();
-
 /**
  * Implements node_create_for_REFERENCE_TYPE hook to able to create lazy referencing.
  */
@@ -48,73 +43,110 @@ function qscience_node_create_for_author_reference($node_title, $language) {
 /**
  * Implements node_create_for_REFERENCE_TYPE hook to able to create lazy referencing.
  */
-function qscience_node_create_for_citation_reference($node_title, $language) {
+function qscience_node_create_for_citation_reference($citation_title, $language) {
   global $user;
   
-  $pos = strpos(strtolower($node_title), "[authors:");
+  $pos = strpos(strtolower($citation_title), "[authors:");
   $authors = array();
   if ($pos !== FALSE) {
-    $authors = explode(",", substr($node_title, $pos + 9, strlen($node_title) - $pos - 10));
-    $node_title = substr($node_title, 0, $pos);
+    $authors = explode(",", substr($citation_title, $pos + 9, strlen($citation_title) - $pos - 10));
+    $citation_title = substr($citation_title, 0, $pos);
   }
-//  dvm($authors);
-  $node = new stdClass();
-  $node->title = trim($node_title);
-  $node->type = "paper";
-  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
-  $node->language = $language; // Or e.g. 'en' if locale is enabled
-  $node->uid = $user->uid;
-  $node->status = 1; //(1 or 0): published or not
-  $node->promote = 0; //(1 or 0): promoted to front page
-  $node->comment = 1; //2 = comments on, 1 = comments off
+  $citation_node = FALSE;
+  $citation_nid = _qscience_check_if_node_exists($citation_title, 'paper');
+  if ($citation_nid === FALSE) {
+  //  dvm($authors);
+    $citation_node = new stdClass();
+    $citation_node->title = trim($citation_title);
+    $citation_node->type = "paper";
+    node_object_prepare($citation_node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+    $citation_node->language = $language; // Or e.g. 'en' if locale is enabled
+    $citation_node->uid = $user->uid;
+    $citation_node->status = 1; //(1 or 0): published or not
+    $citation_node->promote = 0; //(1 or 0): promoted to front page
+    $citation_node->comment = 1; //2 = comments on, 1 = comments off
 
-  $node = node_submit($node); // Prepare node for saving
-   
-  foreach ($authors as $author) {
-    $author = trim($author);
-    $author_node = new stdClass();
-    $author_node->title = $author;
-    $split = explode(" ", $author);
-    $first_name = isset($split[0]) ? $split[0] : 'unknown';
-    $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
-
-    $author_node->first_name = array(
-      $language => array(
-        array(
-          'value' => $first_name
-        )
-      )
-    );
-    $author_node->last_name = array(
-      $language => array(
-        array(
-          'value' => $last_name
-        )
-      )
-    );
-    $author_node->type = "author";
-    node_object_prepare($author_node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
-    $author_node->language = $language; // Or e.g. 'en' if locale is enabled
-    $author_node->uid = $user->uid;
-    $author_node->status = 1; //(1 or 0): published or not
-    $author_node->promote = 0; //(1 or 0): promoted to front page
-    $author_node->comment = 1; //2 = comments on, 1 = comments off
-
-    $author_node = node_submit($author_node); // Prepare node for saving
-    
-    node_save($author_node);
-    
-    if (!isset($node->author_reference[$language])) {
-      $node->author_reference[$language] = array();
+    $citation_node = node_submit($citation_node); // Prepare node for saving
+  } else {
+    $citation_node = node_load($citation_nid);
+  }
+  
+  $citation_targets = array();
+  if (!isset($citation_node->author_reference[$language])) {
+    $citation_node->author_reference[$language] = array();
+  } else {
+    foreach ($citation_node->author_reference[$language] as $key => $val) {
+      $citation_targets[] = $val['target_id'];
     }
-    $node->author_reference[$language][] = array(
-      'target_id' => $author_node->nid,
-    );
+  }
+   
+  foreach ($authors as $author_name) {
+    $author_name = trim($author_name);
+    $author_nid = _qscience_check_if_node_exists($author_name, 'author');
+    
+    if ($author_nid === FALSE) {
+      $author_node = new stdClass();
+      $author_node->title = $author_name;
+      $split = explode(" ", $author_name);
+      $first_name = isset($split[0]) ? $split[0] : 'unknown';
+      $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
+
+      $author_node->first_name = array(
+        $language => array(
+          array(
+            'value' => $first_name
+          )
+        )
+      );
+      $author_node->last_name = array(
+        $language => array(
+          array(
+            'value' => $last_name
+          )
+        )
+      );
+      $author_node->type = "author";
+      node_object_prepare($author_node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+      $author_node->language = $language; // Or e.g. 'en' if locale is enabled
+      $author_node->uid = $user->uid;
+      $author_node->status = 1; //(1 or 0): published or not
+      $author_node->promote = 0; //(1 or 0): promoted to front page
+      $author_node->comment = 1; //2 = comments on, 1 = comments off
+
+      $author_node = node_submit($author_node); // Prepare node for saving
+
+      node_save($author_node);
+      $author_nid = $author_node->nid;
+    }
+    if (!in_array($author_nid, $citation_targets)) {
+      $citation_node->author_reference[$language][] = array(
+        'target_id' => $author_nid,
+      );
+    }
   }
   
-  node_save($node);  
+  node_save($citation_node);  
   
-  return $node->nid;
+  return $citation_node->nid;
+}
+
+function _qscience_check_if_node_exists($match, $node_type) {
+  $nid = FALSE;
+  $query = db_select('node', 'n')
+    ->condition('n.type', $node_type, '=')
+    ->condition('n.title', $match, '=')
+    ->fields('n', array('nid'))
+    ->execute();
+  
+  $row_count = $query->rowCount();
+  if ($row_count > 0) {
+    while ($row = $query->fetchAssoc()) {
+      $nid = (int)$row['nid'];
+      break;
+    }
+  }
+//  dpm($result);
+  return $nid;
 }
 
 /**
@@ -137,122 +169,122 @@ function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
   drupal_add_css(drupal_get_path('module', 'qscience') . '/css/qscience.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
 }
 
-function qscience_node_insert_deprecated($node) {
-  global $author_node_ids, $paper_node_ids, $user;
+//function qscience_node_insert_deprecated($node) {
+//  global $author_node_ids, $paper_node_ids, $user;
+//
+//
+//  if (isset($node->form_id) && $node->form_id === 'paper_node_form') {
+//    foreach ($author_node_ids as $aid => $name) {
+//      $relation = new stdClass();
+//      $relation->is_new = TRUE;
+//      $relation->relation_type = 'belongs_to';
+//      $relation->uid = $user->uid;
+//      $relation->endpoints = array(
+//        'und' => array(
+//          array(
+//            'entity_type' => 'node',
+//            'entity_id' => $aid,
+//            'entity_bundle' => 'author',
+//            'r_index' => 0,
+//            'entity_label' => 'author: ' . $name,
+//            'entity_key' => 'node:' . $aid,
+//          ),
+//          array(
+//            'entity_type' => 'node',
+//            'entity_id' => $node->nid,
+//            'entity_bundle' => 'paper',
+//            'r_index' => 1,
+//            'entity_label' => 'paper: ' . $node->title,
+//            'entity_key' => 'node:' . $node->nid,
+//          ),
+//        ),
+//      );
+//      relation_save($relation);
+//    }
+//    foreach ($paper_node_ids as $pid => $title) {
+//      $relation = new stdClass();
+//      $relation->is_new = TRUE;
+//      $relation->relation_type = 'references_to';
+//      $relation->uid = $user->uid;
+//      $relation->endpoints = array(
+//        'und' => array(
+//          array(
+//            'entity_type' => 'node',
+//            'entity_id' => $pid,
+//            'entity_bundle' => 'paper',
+//            'r_index' => 0,
+//            'entity_label' => 'paper: ' . $title,
+//            'entity_key' => 'node:' . $pid,
+//          ),
+//          array(
+//            'entity_type' => 'node',
+//            'entity_id' => $node->nid,
+//            'entity_bundle' => 'paper',
+//            'r_index' => 1,
+//            'entity_label' => 'paper: ' . $node->title,
+//            'entity_key' => 'node:' . $node->nid,
+//          ),
+//        ),
+//      );
+//      relation_save($relation);
+//    }
+//  }
+//}
 
-
-  if (isset($node->form_id) && $node->form_id === 'paper_node_form') {
-    foreach ($author_node_ids as $aid => $name) {
-      $relation = new stdClass();
-      $relation->is_new = TRUE;
-      $relation->relation_type = 'belongs_to';
-      $relation->uid = $user->uid;
-      $relation->endpoints = array(
-        'und' => array(
-          array(
-            'entity_type' => 'node',
-            'entity_id' => $aid,
-            'entity_bundle' => 'author',
-            'r_index' => 0,
-            'entity_label' => 'author: ' . $name,
-            'entity_key' => 'node:' . $aid,
-          ),
-          array(
-            'entity_type' => 'node',
-            'entity_id' => $node->nid,
-            'entity_bundle' => 'paper',
-            'r_index' => 1,
-            'entity_label' => 'paper: ' . $node->title,
-            'entity_key' => 'node:' . $node->nid,
-          ),
-        ),
-      );
-      relation_save($relation);
-    }
-    foreach ($paper_node_ids as $pid => $title) {
-      $relation = new stdClass();
-      $relation->is_new = TRUE;
-      $relation->relation_type = 'references_to';
-      $relation->uid = $user->uid;
-      $relation->endpoints = array(
-        'und' => array(
-          array(
-            'entity_type' => 'node',
-            'entity_id' => $pid,
-            'entity_bundle' => 'paper',
-            'r_index' => 0,
-            'entity_label' => 'paper: ' . $title,
-            'entity_key' => 'node:' . $pid,
-          ),
-          array(
-            'entity_type' => 'node',
-            'entity_id' => $node->nid,
-            'entity_bundle' => 'paper',
-            'r_index' => 1,
-            'entity_label' => 'paper: ' . $node->title,
-            'entity_key' => 'node:' . $node->nid,
-          ),
-        ),
-      );
-      relation_save($relation);
-    }
-  }
-}
-
-function qscience_add_author_node_by_hand_deprecated($form, &$form_state) {
-  global $user, $author_node_ids, $paper_node_ids;
-
-  $i = 1;
-  while (isset($_POST['author_'.$i])) {
-    $name = trim($_POST['author_'.$i]);
-    if (strlen($name) == 0) {
-      $i++;
-      continue;
-    }
-    $name = explode(" ", $name);
-    $fname = isset($name[0]) ? $name[0] : 'unknown';
-    $lname = isset($name[1]) ? $name[1] : 'unknown';
-
-    $node = new stdClass();
-    $node->type = 'author';
-    $node->title = $fname . ' ' .$lname;
-    $node->uid = $user->uid;
-    //$path = 'content/pcn_' . date('YmdHis');
-    //$node->path = array('alias' => $path);
-    node_object_prepare($node);
-       
-    $node->language = LANGUAGE_NONE;
-    $node->first_name[$node->language][0]['value'] = $fname;
-    $node->last_name[$node->language][0]['value'] = $lname;
-    
-    $node = node_submit($node);
-    node_save($node);
-    $author_node_ids[$node->nid] = $name;
-    $i++;
-  }
-  $i = 1;
-  while (isset($_POST['citation_'.$i])) {
-    $title = trim($_POST['citation_'.$i]);
-    if (strlen($title) == 0) {
-      $i++;
-      continue;
-    }
-    $node = new stdClass();
-    $node->type = 'paper';
-    $node->title = $title;
-    $node->uid = $user->uid;
-    node_object_prepare($node);
-       
-    $node->language = LANGUAGE_NONE;
-    $node->abstract = '';
-    $node->journal = '';
-    
-    $node = node_submit($node);
-    node_save($node);
-    $paper_node_ids[$node->nid] = $title;
-    $i++;
-  }
-}
+//function qscience_add_author_node_by_hand_deprecated($form, &$form_state) {
+//  global $user, $author_node_ids, $paper_node_ids;
+//
+//  $i = 1;
+//  while (isset($_POST['author_'.$i])) {
+//    $name = trim($_POST['author_'.$i]);
+//    if (strlen($name) == 0) {
+//      $i++;
+//      continue;
+//    }
+//    $name = explode(" ", $name);
+//    $fname = isset($name[0]) ? $name[0] : 'unknown';
+//    $lname = isset($name[1]) ? $name[1] : 'unknown';
+//
+//    $node = new stdClass();
+//    $node->type = 'author';
+//    $node->title = $fname . ' ' .$lname;
+//    $node->uid = $user->uid;
+//    //$path = 'content/pcn_' . date('YmdHis');
+//    //$node->path = array('alias' => $path);
+//    node_object_prepare($node);
+//       
+//    $node->language = LANGUAGE_NONE;
+//    $node->first_name[$node->language][0]['value'] = $fname;
+//    $node->last_name[$node->language][0]['value'] = $lname;
+//    
+//    $node = node_submit($node);
+//    node_save($node);
+//    $author_node_ids[$node->nid] = $name;
+//    $i++;
+//  }
+//  $i = 1;
+//  while (isset($_POST['citation_'.$i])) {
+//    $title = trim($_POST['citation_'.$i]);
+//    if (strlen($title) == 0) {
+//      $i++;
+//      continue;
+//    }
+//    $node = new stdClass();
+//    $node->type = 'paper';
+//    $node->title = $title;
+//    $node->uid = $user->uid;
+//    node_object_prepare($node);
+//       
+//    $node->language = LANGUAGE_NONE;
+//    $node->abstract = '';
+//    $node->journal = '';
+//    
+//    $node = node_submit($node);
+//    node_save($node);
+//    $paper_node_ids[$node->nid] = $title;
+//    $i++;
+//  }
+//}
 
 function qscience_views_api() {
   return array(
