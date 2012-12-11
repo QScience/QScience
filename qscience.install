@@ -620,14 +620,14 @@ function qscience_node_editorial(){
 
 function qscience_node_author() {
   
-	$type=array(
-      'type' => 'author', 
-      'name' => t('Author'), 
-      'base' => 'node_content', 
-      'description' => t("Authors to scientific papers."), 
-      'custom' => 1, 
-      'modified' => 1, 
-      'locked' => 0,
+	$type = array(
+    'type' => 'author', 
+    'name' => t('Author'), 
+    'base' => 'node_content', 
+    'description' => t("Authors to scientific papers."), 
+    'custom' => 1, 
+    'modified' => 1, 
+    'locked' => 0,
 	);
 	$type = node_type_set_defaults($type);
 	node_type_save($type);
@@ -993,5 +993,6 @@ function qscience_uninstall() {
 
 	node_types_rebuild();
 	menu_rebuild();
+  drupal_cron_run();
 }
 
