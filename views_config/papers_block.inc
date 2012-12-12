@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * This config will create the Citations to the Paper node type.
+ */
+
 $view = new view();
 $view->name = 'papers_block_3';
 $view->description = '';

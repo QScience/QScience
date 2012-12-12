@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * This config will create the References block to a given Paper.
+ */
+
 $view = new view();
 $view->name = 'papers_links_to_this_paper';
 $view->description = '';

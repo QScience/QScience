@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * This config will create the Papers links to Authors.
+ */
+
 $view = new view();
 $view->name = 'papers_links_to_author';
 $view->description = '';

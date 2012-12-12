@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * This config will create the Author links to a Paper node type.
+ */
+
 $view = new view();
 $view->name = 'authors_block_4';
 $view->description = '';

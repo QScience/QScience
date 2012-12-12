@@ -5,7 +5,7 @@
  */
 function qscience_node_create_for_author_reference($node_title, $language) {
   global $user;
-  
+
   $node = new stdClass();
   $node->title = $node_title;
   $split = explode(" ", $node->title);
@@ -36,7 +36,7 @@ function qscience_node_create_for_author_reference($node_title, $language) {
 
   $node = node_submit($node); // Prepare node for saving
   node_save($node);
-  
+
   return $node->nid;
 }
 
@@ -45,12 +45,12 @@ function qscience_node_create_for_author_reference($node_title, $language) {
  */
 function qscience_node_create_for_citation_reference($citation_title, $language) {
   global $user;
-  
-  $pos = strpos(strtolower($citation_title), "[authors:");
+
+  $pos = strpos(drupal_strtolower($citation_title), "[authors:");
   $authors = array();
   if ($pos !== FALSE) {
-    $authors = explode(",", substr($citation_title, $pos + 9, strlen($citation_title) - $pos - 10));
-    $citation_title = substr($citation_title, 0, $pos);
+    $authors = explode(",", drupal_substr($citation_title, $pos + 9, drupal_strlen($citation_title) - $pos - 10));
+    $citation_title = drupal_substr($citation_title, 0, $pos);
   }
   $citation_node = FALSE;
   $citation_nid = _qscience_check_if_node_exists($citation_title, 'paper');
@@ -67,23 +67,25 @@ function qscience_node_create_for_citation_reference($citation_title, $language)
     $citation_node->comment = 1; //2 = comments on, 1 = comments off
 
     $citation_node = node_submit($citation_node); // Prepare node for saving
-  } else {
+  }
+  else {
     $citation_node = node_load($citation_nid);
   }
-  
+
   $citation_targets = array();
   if (!isset($citation_node->author_reference[$language])) {
     $citation_node->author_reference[$language] = array();
-  } else {
+  }
+  else {
     foreach ($citation_node->author_reference[$language] as $key => $val) {
       $citation_targets[] = $val['target_id'];
     }
   }
-   
+
   foreach ($authors as $author_name) {
     $author_name = trim($author_name);
     $author_nid = _qscience_check_if_node_exists($author_name, 'author');
-    
+
     if ($author_nid === FALSE) {
       $author_node = new stdClass();
       $author_node->title = $author_name;
@@ -124,9 +126,9 @@ function qscience_node_create_for_citation_reference($citation_title, $language)
       );
     }
   }
-  
-  node_save($citation_node);  
-  
+
+  node_save($citation_node);
+
   return $citation_node->nid;
 }
 
@@ -137,7 +139,7 @@ function _qscience_check_if_node_exists($match, $node_type) {
     ->condition('n.title', $match, '=')
     ->fields('n', array('nid'))
     ->execute();
-  
+
   $row_count = $query->rowCount();
   if ($row_count > 0) {
     while ($row = $query->fetchAssoc()) {
