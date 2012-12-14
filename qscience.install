@@ -257,17 +257,17 @@ function qscience_node_paper() {
       ),
       'required' => 1,
     ),
-    array(
-      'field_name' => 'journal',
-      'label' => 'Journal',
-      'entity_type' => 'node',
-      'bundle' => 'paper',
-      'widget' => array(
-        'type' => 'text_textfield',
-        'weight' => 3,
-      ),
-      'required' => 1,
-    ),
+//    array(
+//      'field_name' => 'journal',
+//      'label' => 'Journal',
+//      'entity_type' => 'node',
+//      'bundle' => 'paper',
+//      'widget' => array(
+//        'type' => 'text_textfield',
+//        'weight' => 3,
+//      ),
+//      'required' => 1,
+//    ),
     array(
       'field_name' => 'url',
       'label' => 'External URL',
@@ -414,39 +414,6 @@ function qscience_node_institution() {
   );
 
   foreach ($instinstances as $instance) {
-    field_create_instance($instance);
-  }
-}
-
-function qscience_node_journal() {
-  $type = array(
-    'type' => 'journal',
-    'name' => t('Journal'),
-    'base' => 'node_content',
-    'description' => t('A type of content to describe journals.'),
-    'custom' => 1,
-    'modified' => 1,
-    'locked' => 0,
-  );
-  $type = node_type_set_defaults($type);
-  node_type_save($type);
-
-//add field instances for journal
-  $journalinstances = array(
-    array(
-      'field_name' => 'research_fields',
-      'label' => 'Fields',
-      'entity_type' => 'node',
-      'bundle' => 'journal',
-      'widget' => array(
-        'type' => 'text_textfield',
-        'weight' => 1,
-      ),
-      'required' => 1,
-    ),
-  );
-
-  foreach ($journalinstances as $instance) {
     field_create_instance($instance);
   }
 }
@@ -600,6 +567,39 @@ function qscience_node_editorial() {
     ),
   );
   foreach ($editorialinstances as $instance) {
+    field_create_instance($instance);
+  }
+}
+
+function qscience_node_journal() {
+  $type = array(
+    'type' => 'journal',
+    'name' => t('Journal'),
+    'base' => 'node_content',
+    'description' => t('A type of content to describe journals.'),
+    'custom' => 1,
+    'modified' => 1,
+    'locked' => 0,
+  );
+  $type = node_type_set_defaults($type);
+  node_type_save($type);
+
+//add field instances for journal
+  $journalinstances = array(
+    array(
+      'field_name' => 'research_fields',
+      'label' => 'Fields',
+      'entity_type' => 'node',
+      'bundle' => 'journal',
+      'widget' => array(
+        'type' => 'text_textfield',
+        'weight' => 1,
+      ),
+      'required' => 1,
+    ),
+  );
+
+  foreach ($journalinstances as $instance) {
     field_create_instance($instance);
   }
 }
@@ -802,6 +802,49 @@ function qscience_citation_reference_field_create() {
   field_create_instance($instance);
 }
 
+function qscience_journal_reference_field_create() {
+  $field = array(
+    'field_name' => 'journal_reference',
+    'type' => 'entityreference',
+    'cardinality' => 1,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler_settings' => array(
+        'target_bundles' => array('journal'),
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference'),
+        'unique_reference' => array('unique_reference' => 'unique_reference'),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'journal_reference',
+    'entity_type' => 'node',
+    'bundle' => 'paper',
+    'label' => t('Journal'),
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+    ),
+    'settings' => array(
+      'target_type' => 'node',
+      'handler_settings' => array(
+        'target_bundles' => array('journal'),
+        'lazy_reference' => array('lazy_reference' => 'lazy_reference'),
+        'unique_reference' => array('unique_reference' => 'unique_reference'),
+      ),
+    ),
+    'display' => array(
+      'default' => array(
+        'settings' => array(
+          'link' => 1
+        )
+      )
+    )
+  );
+  field_create_instance($instance);
+}
+
 function qscience_views_block_setup() {
   $arr = array(
     'module' => 'views',
@@ -910,6 +953,7 @@ function qscience_install() {
 
   qscience_author_reference_field_create();
   qscience_citation_reference_field_create();
+  qscience_journal_reference_field_create();
 
   //qscience_views_block_setup();
 }
