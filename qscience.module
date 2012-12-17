@@ -167,8 +167,72 @@ function qscience_paper_uploaded($file) {
   }
 }
 
+function qscience_paper_form_validate(&$form, &$form_state) {
+  global $_POST;
+  
+  $lang = $form['language']['#value'];
+  $title = $form_state['values']['title'];
+  $filename = FALSE;
+  $fid = isset($form_state['values']['field_paper_upload'][$lang][0]['fid']) ? $form_state['values']['field_paper_upload'][$lang][0]['fid'] : FALSE;
+  $match_ids = array();
+  
+  $query_title = db_select('node', 'n');
+  $result_title = $query_title
+        ->fields('n', array('nid'))
+        ->condition('n.title', $title, '=')
+        ->execute();
+  foreach ($result_title as $row) {
+    $match_ids['title'] = (int)$row->nid;
+  }
+  
+  if ($fid !== FALSE) {
+    $query_tmp = db_select('file_managed', 'fm');
+    $result_tmp = $query_tmp
+          ->fields('fm', array('filename'))
+          ->condition('fid', $fid, '=')
+          ->execute();
+    foreach ($result_tmp as $row) {
+      $filename = $row->filename;
+      break;
+    }
+    if ($filename !== FALSE) {
+      $query_file = db_select('node', 'n');
+      $query_file->join('file_usage', 'fu', 'fu.id = n.nid');
+      $query_file->join('file_managed', 'fm', 'fm.fid = fu.fid');
+      $result_file = $query_file
+            ->fields('n', array('nid'))
+            ->condition('n.type', 'paper', '=')
+            ->condition('fm.filename', $filename, '=')
+            ->execute();
+      foreach ($result_file as $row) {
+        $match_ids['file name'] = (int)$row->nid;
+      }
+    }
+  }
+  
+  if (!isset($_POST['submit_anyway']) && count($match_ids) > 0) {
+    foreach ($match_ids as $type => $id) {
+      form_set_error('', t('A paper with the same @type already exists, <a href="@link" target="_blank">please check</a> it before saving new paper anyway.',
+        array(
+          '@type' => $type,
+          '@link' => url('node/' . $id),
+          )
+        )
+      );
+    }
+    
+    $form['submit_anyway'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save paper anyway'),
+      '#weight' => -50,
+      '#name' => 'submit_anyway',
+    );
+  }
+}
+
 function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
   drupal_add_css(drupal_get_path('module', 'qscience') . '/css/qscience.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
+  $form['#validate'][] = 'qscience_paper_form_validate';
 }
 
 function qscience_views_api() {
