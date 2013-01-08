@@ -1,4 +1,72 @@
-//(function ($) {
+var i = 0;
+
+var events = new Array();
+
+(function ($) {
+  
+  
+  Drupal.behaviors.qscience = {
+      attach: function (context, settings) {
+//        console.log('attaching van..');
+        $('input[name="author_reference_add_more"]', context).live('mouseup', function () {
+          console.log('mouseup event....');
+          var showHidden = false;
+          $('#author-reference-values tr.draggable').each(function() {
+            console.log($(this).attr('class'));
+            if ($(this).hasClass('hidden')) {
+              if (showHidden) return;
+              showHidden = true;
+              $(this).removeClass('hidden');
+            }
+          });
+          if (!showHidden) {
+            for (var ev in events) {
+              var e = events[ev].handler;
+              e();
+            }
+          }
+          return false;
+        });
+      }
+    };
+  
+  $(document).ready(function() {
+    
+    var e = $('#edit-author-reference-und-add-more').data('events');
+    events = $.extend(true, [], e['mousedown']);
+       
+    $('input.author-remove').live('click', function() {
+      $(this).closest('tr.draggable').addClass('hidden');
+      console.log('hide it!');
+      return false;
+    });
+    
+//    console.log(events);
+    $('#edit-author-reference-und-add-more').unbind('mousedown');
+    $('#edit-author-reference-und-add-more').live('mouseup', function() {
+//      console.log('mouseup event....');
+//      var showHidden = false;
+//      $('#author-reference-values tr.draggable').each(function() {
+//        console.log($(this).attr('class'));
+//        if ($(this).hasClass('hidden')) {
+//          if (showHidden) return;
+//          showHidden = true;
+//          $(this).removeClass('hidden');
+//        }
+//      });
+//      if (!showHidden) {
+//        for (var ev in events) {
+//          var e = events[ev].handler;
+////          e();
+//        }
+//      }
+//      return false;
+    });
+  });
+})(jQuery);
+  
+
+////(function ($) {
 //  $(document).ajaxComplete(function(e, xhr, settings) {
 //    if (settings.extraData._triggering_element_name == 'field_paper_upload_und_0_upload_button') {
 //      var num = $('#edit-field-paper-upload div.messages').length;
