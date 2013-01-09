@@ -1,39 +1,105 @@
 var i = 0;
-
-var events = new Array();
+//console.log('qscience.js imported.');
+var events = null;
 
 (function ($) {
   
+//  $('input[name="author_reference_add_more"]').live('mouseup', function () {
+//    
+//  });
   
-  Drupal.behaviors.qscience = {
+    Drupal.behaviors.qscience = {
       attach: function (context, settings) {
-//        console.log('attaching van..');
-        $('input[name="author_reference_add_more"]', context).live('mouseup', function () {
-          console.log('mouseup event....');
-          var showHidden = false;
-          $('#author-reference-values tr.draggable').each(function() {
-            console.log($(this).attr('class'));
-            if ($(this).hasClass('hidden')) {
-              if (showHidden) return;
-              showHidden = true;
-              $(this).removeClass('hidden');
-            }
-          });
-          if (!showHidden) {
-            for (var ev in events) {
-              var e = events[ev].handler;
-              e();
-            }
-          }
-          return false;
+        $('#edit-author-reference-und-add-more').once('del-default-events', function() {
+          console.log('unbinding...');
+          $('#edit-author-reference-und-add-more', context).unbind('mousedown');
         });
+//        console.log('attach running');
+//        var e = $('#edit-author-reference-und-add-more').data('events');
+//        events = new Array();
+//        events = $.extend(true, [], e['mousedown']);
+//        $('#edit-author-reference-und-add-more', context).unbind('mousedown');
+//        $('#edit-author-reference-und-add-more').click(function() {
+//          console.log('click');
+//          if (Math.random() > 0.8) {
+//            console.log('20%');
+//            for (var ev in events) {
+//              e = events[ev].handler;
+//              console.log('calling saved event...');
+//              e();
+//            }
+//          } else {
+//            console.log('80%');
+//          }
+//        });
       }
     };
   
+//  Drupal.behaviors.qscience = {
+//    attach: function (context, settings) {
+////      i = 0;
+//      if (typeof context == 'object' && typeof context[0] != 'undefined') {
+//        var id = context.attr('id');
+//        if (id == 'paper-node-form') {
+//          // Save and remove default handlers anyway...
+//          var test;
+//          var e = $('#edit-author-reference-und-add-more').data('events');
+//          events = new Array();
+//          test = events = $.extend(true, [], e['mousedown']);
+////          console.log(events.length);
+//          $('#edit-author-reference-und-add-more', context).unbind('mousedown');
+//          e = $('#edit-author-reference-und-add-more').data('events');
+//          test = $.extend(true, [], e['mousedown']);
+//          console.log(events);
+//          console.log(test);
+//          
+//          var rownum = $('#author-reference-values tr.draggable').length;
+//          console.log('rownum -> ' + rownum);
+//          
+//          i++;
+//          console.log(i);
+//          if ((rownum == 2) || (rownum == 3 && i == 1) || (i + 3 === rownum)) {
+//            console.log(i + ' == ' + rownum);
+////            i = 0;
+//            $('input[name="author_reference_add_more"]', context).live('mouseup', function () {
+//  //            console.log('mouseup event....');
+//              var showHidden = false;
+//              $('#author-reference-values tr.draggable').each(function() {
+//  //              console.log('class -> ' + $(this).attr('class'));
+//                if ($(this).hasClass('hidden')) {
+//                  if (showHidden) return;
+//                  showHidden = true;
+//                  $(this).removeClass('hidden');
+//                }
+//              });
+//              console.log('show hidden: ' + showHidden);
+//              if (!showHidden) {
+//                for (var ev in events) {
+//                  e = events[ev].handler;
+//  //                console.log('calling saved event...');
+//                  e();
+//                }
+//              }
+//              return false;
+//            });
+//          } else {
+//            console.log('skip validation...');
+//            return false;
+//          }
+//        }
+//      }
+//      
+////      console.log(settings);
+//      console.log('- - - - -');
+////      console.log($('input[name="author_reference_add_more"]').length);
+//
+//    }
+//  };
+  
   $(document).ready(function() {
-    
-    var e = $('#edit-author-reference-und-add-more').data('events');
-    events = $.extend(true, [], e['mousedown']);
+//    console.log('document.ready');
+//    var e = $('#edit-author-reference-und-add-more').data('events');
+//    events = $.extend(true, [], e['mousedown']);
        
     $('input.author-remove').live('click', function() {
       $(this).closest('tr.draggable').addClass('hidden');
@@ -42,8 +108,8 @@ var events = new Array();
     });
     
 //    console.log(events);
-    $('#edit-author-reference-und-add-more').unbind('mousedown');
-    $('#edit-author-reference-und-add-more').live('mouseup', function() {
+//    $('#edit-author-reference-und-add-more').unbind('mousedown');
+//    $('#edit-author-reference-und-add-more').live('mouseup', function() {
 //      console.log('mouseup event....');
 //      var showHidden = false;
 //      $('#author-reference-values tr.draggable').each(function() {
@@ -57,11 +123,11 @@ var events = new Array();
 //      if (!showHidden) {
 //        for (var ev in events) {
 //          var e = events[ev].handler;
-////          e();
+//          e();
 //        }
 //      }
 //      return false;
-    });
+//    });
   });
 })(jQuery);
   
