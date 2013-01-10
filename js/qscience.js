@@ -8,12 +8,12 @@ var events = null;
 //    
 //  });
   
-    Drupal.behaviors.qscience = {
-      attach: function (context, settings) {
-        $('#edit-author-reference-und-add-more').once('del-default-events', function() {
-          console.log('unbinding...');
-          $('#edit-author-reference-und-add-more', context).unbind('mousedown');
-        });
+//    Drupal.behaviors.qscience = {
+//      attach: function (context, settings) {
+//        $('#edit-author-reference-und-add-more').once('del-default-events', function() {
+//          console.log('unbinding...');
+//          $('#edit-author-reference-und-add-more', context).unbind('mousedown');
+//        });
 //        console.log('attach running');
 //        var e = $('#edit-author-reference-und-add-more').data('events');
 //        events = new Array();
@@ -32,8 +32,8 @@ var events = null;
 //            console.log('80%');
 //          }
 //        });
-      }
-    };
+//      }
+//    };
   
 //  Drupal.behaviors.qscience = {
 //    attach: function (context, settings) {
@@ -101,11 +101,11 @@ var events = null;
 //    var e = $('#edit-author-reference-und-add-more').data('events');
 //    events = $.extend(true, [], e['mousedown']);
        
-    $('input.author-remove').live('click', function() {
-      $(this).closest('tr.draggable').addClass('hidden');
-      console.log('hide it!');
-      return false;
-    });
+//    $('input.author-remove').live('click', function() {
+//      $(this).closest('tr.draggable').addClass('hidden');
+//      console.log('hide it!');
+//      return false;
+//    });
     
 //    console.log(events);
 //    $('#edit-author-reference-und-add-more').unbind('mousedown');

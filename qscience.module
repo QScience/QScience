@@ -231,23 +231,23 @@ function qscience_paper_form_validate(&$form, &$form_state) {
 }
 
 function qscience_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id === 'paper_node_form') {
-    foreach ($form['author_reference']['und'] as $key => $val) {
-      if (gettype($key) == 'integer') {
-        if ($key === 0) continue;
-        $form['author_reference']['und'][$key][] = array(
-          '#type' => 'image_button',
-          '#value' => t('Delete'),
-          '#weight' => 20,
-          '#attributes' => array(
-            'class' => array(
-              'author-remove'
-            ),
-          ),
-        );
-      }
-    }
-  }
+//  if ($form_id === 'paper_node_form') {
+//    foreach ($form['author_reference']['und'] as $key => $val) {
+//      if (gettype($key) == 'integer') {
+//        if ($key === 0) continue;
+//        $form['author_reference']['und'][$key][] = array(
+//          '#type' => 'image_button',
+//          '#value' => t('Delete'),
+//          '#weight' => 20,
+//          '#attributes' => array(
+//            'class' => array(
+//              'author-remove'
+//            ),
+//          ),
+//        );
+//      }
+//    }
+//  }
 }
 
 function qscience_node_validate($node, &$form, &$form_state) {
