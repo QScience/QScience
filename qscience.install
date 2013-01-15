@@ -197,7 +197,7 @@ function qscience_create_field(){
       	'allowed_values' => array(
       				'Call for papers'=>'Call for papers',
       	      'Announcement'=>'Announcement',
-							'Job Opening'=>'Job Opening',
+	//						'Job Opening'=>'Job Opening',
       	      'Award'=>'Award',
 							'Conference Report'=>'Conference Report',
       	      'Others'=>'Others'),
@@ -568,6 +568,39 @@ function qscience_node_news(){
 	);
 
 	foreach($newsinstances as $instance){
+		field_create_instance($instance);
+	}
+}
+
+function qscience_node_jobs(){
+	$type=array(
+      'type' => 'job_opening', 
+      'name' => t('Job openings'), 
+      'base' => 'node_content', 
+      'description' => t('A type of content to describe job openings.'), 
+      'custom' => 1, 
+      'modified' => 1, 
+      'locked' => 0,
+	);
+	$type = node_type_set_defaults($type);
+	node_type_save($type);
+	node_add_body_field($type);
+	
+//add field instances for job
+	$jobsinstances=array(
+		array(
+    	'field_name' => 'website',
+    	'label' => 'Jobs website',  
+    	'entity_type' => 'node', 
+      'bundle' => 'news',  
+   		'widget' => array(
+   		'type' => 'text_textfield',
+   		'weight' => 2, 
+			),
+	),
+	);
+
+	foreach($jobsinstances as $instance){
 		field_create_instance($instance);
 	}
 }
