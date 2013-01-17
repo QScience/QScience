@@ -170,6 +170,10 @@ function qscience_paper_uploaded($file) {
 function qscience_paper_form_validate(&$form, &$form_state) {
   global $_POST;
   
+  if (is_numeric($form['nid']['#value'])) {
+    return;
+  }
+  
   $lang = $form['language']['#value'];
   $title = $form_state['values']['title'];
   $filename = FALSE;
