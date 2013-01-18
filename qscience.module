@@ -45,8 +45,8 @@ function qscience_node_create_for_author_reference($node_title, $language) {
  */
 function qscience_node_create_for_citation_reference($citation_title, $language) {
   global $user;
-
-  $pos = strpos(drupal_strtolower($citation_title), "[authors:");
+  
+  $pos = mb_stripos(drupal_strtolower($citation_title), "[authors:");
   $authors = array();
   if ($pos !== FALSE) {
     $authors = explode(",", drupal_substr($citation_title, $pos + 9, drupal_strlen($citation_title) - $pos - 10));
