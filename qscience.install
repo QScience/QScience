@@ -251,10 +251,9 @@ function qscience_node_paper() {
       'label' => 'Abstract',
       'entity_type' => 'node',
       'bundle' => 'paper',
-      'weight' => 1,
       'widget' => array(
         'type' => 'text_textarea_with_summary',
-        'weight' => 2,
+        'weight' => 0,
       ),
       'required' => 1,
     ),
@@ -274,10 +273,9 @@ function qscience_node_paper() {
       'label' => 'External URL',
       'entity_type' => 'node',
       'bundle' => 'paper',
-      'weight' => 2,
       'widget' => array(
         'type' => 'text_textfield',
-        'weight' => 4,
+        'weight' => 2,
       ),
     ),
   );
@@ -743,6 +741,7 @@ function qscience_author_reference_field_create() {
     'weight' => 5,
     'widget' => array(
       'type' => 'entityreference_autocomplete',
+      'weight' => 6,
     ),
     'settings' => array(
       'target_type' => 'node',
@@ -784,9 +783,9 @@ function qscience_citation_reference_field_create() {
     'entity_type' => 'node',
     'bundle' => 'paper',
     'label' => t('Citations'),
-    'weight' => 10,
     'widget' => array(
       'type' => 'entityreference_autocomplete',
+      'weight' => 10,
     ),
     'settings' => array(
       'target_type' => 'node',
@@ -830,6 +829,7 @@ function qscience_journal_reference_field_create() {
     'label' => t('Journal'),
     'widget' => array(
       'type' => 'entityreference_autocomplete',
+      'weight' => 12,
     ),
     'settings' => array(
       'target_type' => 'node',
