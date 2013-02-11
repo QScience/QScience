@@ -9,6 +9,7 @@ dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = views
 dependencies[] = eva
+dependencies[] = qtr
 
 core = 7.x
 version = "7.x-1.0"
