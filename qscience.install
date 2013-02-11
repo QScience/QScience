@@ -191,7 +191,7 @@ function qscience_create_field() {
         'allowed_values' => array(
           'Call for papers' => 'Call for papers',
           'Announcement' => 'Announcement',
-          'Job Opening' => 'Job Opening',
+//          'Job Opening' => 'Job Opening',
           'Award' => 'Award',
           'Conference Report' => 'Conference Report',
           'Others' => 'Others'),
@@ -200,6 +200,9 @@ function qscience_create_field() {
     array(
       'field_name' => 'field_paper_upload',
       'type' => 'file',
+      'settings' => array(
+        'file_extensions' => 'pdf, ps, doc, txt, rtf',
+      ),
     ),
   );
   foreach ($fields as $field) {
@@ -235,17 +238,6 @@ function qscience_node_paper() {
       ),
       'required' => 1,
     ),
-    /* array(
-      'field_name' => 'authorname',
-      'label' => 'Author(s)',
-      'entity_type' => 'node',
-      'bundle' => 'paper',
-      'widget' => array(
-      'type' => 'text_textfield',
-      'weight' => 1,
-      ),
-      'required' =>1,
-      ), */
     array(
       'field_name' => 'abstract',
       'label' => 'Abstract',
@@ -257,17 +249,6 @@ function qscience_node_paper() {
       ),
       'required' => 1,
     ),
-//    array(
-//      'field_name' => 'journal',
-//      'label' => 'Journal',
-//      'entity_type' => 'node',
-//      'bundle' => 'paper',
-//      'widget' => array(
-//        'type' => 'text_textfield',
-//        'weight' => 3,
-//      ),
-//      'required' => 1,
-//    ),
     array(
       'field_name' => 'url',
       'label' => 'External URL',
@@ -513,6 +494,40 @@ function qscience_node_news() {
   );
 
   foreach ($newsinstances as $instance) {
+    field_create_instance($instance);
+  }
+}
+
+function qscience_node_jobs() {
+  $type = array(
+    'type' => 'job_opening',
+    'name' => t('Job openings'),
+    'base' => 'node_content',
+    'description' => t('A type of content to describe job openings.'),
+    'custom' => 1,
+    'modified' => 1,
+    'locked' => 0,
+  );
+
+  $type = node_type_set_defaults($type);
+  node_type_save($type);
+  node_add_body_field($type);
+
+  //add field instances for job
+  $jobsinstances = array(
+    array(
+      'field_name' => 'website',
+      'label' => 'Jobs website',
+      'entity_type' => 'node',
+      'bundle' => 'news',
+      'widget' => array(
+        'type' => 'text_textfield',
+        'weight' => 2,
+      ),
+    ),
+  );
+
+  foreach ($jobsinstances as $instance) {
     field_create_instance($instance);
   }
 }
@@ -850,94 +865,6 @@ function qscience_journal_reference_field_create() {
   field_create_instance($instance);
 }
 
-function qscience_views_block_setup() {
-  $arr = array(
-    'module' => 'views',
-    'delta' => 'authors_block_3-block',
-    'title' => 'asdasd',
-    'regions' => array(
-      'bartik' => 'content',
-      'seven' => 'content',
-    ),
-    'visibility' => '0',
-    'pages' => '',
-    'roles' => array(
-      1 => 0,
-      2 => 0,
-      3 => 0,
-    ),
-    'custom' => '0',
-    'types' => array(
-      'paper' => 'paper',
-      'article' => 0,
-      'author' => 0,
-      'page' => 0,
-      'bookreview' => 0,
-      'editorial' => 0,
-      'event' => 0,
-      'institution' => 0,
-      'journal' => 0,
-      'news' => 0,
-      'paper_from_arxiv' => 0,
-    ),
-    'visibility__active_tab' => 'edit-path',
-    'submit' => 'Save block',
-    'form_build_id' => 'form-Vz2aoR-xy7a2L9I9-SwyGPl3Y6bawR9Cgj5xdJPe72o',
-    'form_token' => 'CYBIGJN0cyORKXUvfhpjj9HakRIkfj8cPmuQ-ylQFyc',
-    'form_id' => 'block_admin_configure',
-    'op' => 'Save block',
-  );
-  $form = array();
-  $form['values'] = $arr;
-  qscience_views_block_save($form);
-}
-
-function qscience_views_block_save($form) {
-  $transaction = db_transaction();
-  try {
-    db_update('block')
-      ->fields(
-        array(
-          'visibility' => 0,
-          'pages' => '',
-          'custom' => 0,
-          'title' => 'Citations',
-        )
-      )
-      ->condition('module', 'views')
-      ->condition('delta', 'authors_block_3-block')
-      ->execute();
-
-    db_delete('block_role')
-      ->condition('module', 'views')
-      ->condition('delta', 'authors_block_3-block')
-      ->execute();
-
-    // Store regions per theme for this block
-    foreach (array('seven' => 'content', 'bartik' => 'content') as $theme => $region) {
-      db_merge('block')
-        ->key(array('theme' => $theme, 'delta' => 'authors_block_3-block', 'module' => 'views'))
-        ->fields(
-          array(
-            'region' => ($region == BLOCK_REGION_NONE ? '' : $region),
-            'pages' => '',
-            'status' => (int) ($region != BLOCK_REGION_NONE),
-          )
-        )
-        ->execute();
-    }
-
-    module_invoke('views', 'block_save', 'authors_block_3-block', $form['values']);
-  } catch (Exception $e) {
-    $transaction->rollback();
-    watchdog_exception('block', $e);
-    throw $e;
-  }
-  //drupal_set_message(t('The block configuration has been saved.'));
-  cache_clear_all();
-  //$form_state['redirect'] = 'admin/structure/block';
-}
-
 /**
  * Implements hook_install().
  */
@@ -960,7 +887,6 @@ function qscience_install() {
   qscience_citation_reference_field_create();
   qscience_journal_reference_field_create();
 
-  //qscience_views_block_setup();
 }
 
 /**

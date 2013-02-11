@@ -1,5 +1,256 @@
 <?php
 
+function qscience_menu() {
+  $items = array();
+
+  $items['papers/popular'] = array(
+    'title' => 'Papers',
+    'description' => 'Popular Papers list',
+    'page callback' => 'paper_sort_filter',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['add/paper'] = array(
+    'title' => 'Post Papers',
+    'description' => 'Add papers of different types',
+    'page callback' => 'paper_add',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ *
+ * Menu callback; Generate a listing of promoted papers.
+ */
+function paper_sort_filter() {
+  // $query = drupal_get_query_parameters($_GET, array());
+  if (isset($_GET['order'])) {
+    $sort_type = $_GET['order'];
+  }
+  else {
+    $sort_type = 'qtr';
+  }
+
+  if (isset($_GET['period'])) {
+    $time = $_GET['period'];
+  }
+  else {
+    $time='month';
+  }
+
+  switch ($sort_type) {
+    case 'vote':
+      $stype=1;
+      break;
+    case 'download':
+      $stype=2;
+      break;
+    case 'view':
+      $stype=3;
+      break;
+    case 'qtr':
+      $stype=4;
+      break;
+    default:
+      $stype=4;
+      break;
+  }
+
+  switch ($time) {
+    case 'year':
+      $ctime=365 * 24 * 3600;
+      break;
+    case '6month':
+      $ctime=182 * 24 * 3600;
+      break;
+    case 'month':
+      $ctime=30 * 24 * 3600;
+      break;
+    case 'week':
+      $ctime=7 * 24 * 3600;
+      break;
+    default:
+      $ctime=30 * 24 * 3600;
+      break;
+  }
+
+  if ($stype <= 3) {
+//    $sql='select n.nid, n.sticky, n.created, a.num from {node} as n LEFT join (select nid, count(*) as num from {qtr_actions} ' .
+//      'where action_type='.$stype.' and timestamp >'.(time()-$ctime).' group by nid) as a on ' .
+//      ' n.nid = a.nid where n.promote=1 and n.status=1 and ' .
+//      '(n.type = \'paper\' or n.type = \'paper_from_arxiv\') order by a.num DESC,n.sticky DESC, n.created DESC';
+
+    $select = db_select('node', 'n')->extend('PagerDefault');
+    $select->leftJoin('qtr_actions', 'a', 'a.nid=n.nid and a.action_type=' . $stype . ' and a.timestamp >' . (time()-$ctime));
+    $select->fields('n', array('nid', 'sticky', 'created'))
+            ->addExpression('COUNT(n.nid)', 'node_count');
+    $select->condition('n.promote', 1)
+            ->condition('n.status', 1)
+            ->condition('n.type', array('paper', 'paper_from_arxiv'), 'in')
+            ->groupBy('n.nid')
+            ->orderBy('node_count', 'DESC')
+            ->orderBy('n.sticky', 'DESC')
+            ->orderBy('n.created', 'DESC');
+    $select->limit(variable_get('default_nodes_main', 10))
+            ->addTag('node_access');
+  }
+  else {
+  /* $sql='select n.nid, n.sticky, n.created, q.quality from {node} as n LEFT join {qtr_quality} as q on n.nid = q.nid where n.promote=1 and n.status=1 and ' .
+'(n.type = \'paper\' or n.type = \'paper_from_arxiv\') order by q.quality DESC,n.sticky DESC, n.created DESC';*/
+    $select = db_select('node', 'n')->extend('PagerDefault');
+    $select->leftJoin('qtr_quality', 'q', 'q.nid=n.nid');
+    $select->fields('n', array('nid', 'sticky', 'created'))->fields('q', array('quality'));
+    $select->condition('n.promote', 1)
+            ->condition('n.status', 1)
+            ->condition('n.type', array('paper', 'paper_from_arxiv'), 'in')
+            ->orderBy('q.quality', 'DESC')
+            ->orderBy('n.sticky', 'DESC')
+            ->orderBy('n.created', 'DESC');
+    $select->limit(variable_get('default_nodes_main', 10))
+            ->addTag('node_access');
+  }
+  /* $nids=db_query($sql)->fetchCol();
+   * this is for option selected in top paper <option ';
+   if($stype==3) {
+    $output .= 'selected="selected"';
+   }
+   $output .= ' value="view">views</option>
+   */
+
+  $nids = $select->execute()->fetchCol();
+  $output = '<div class="border_title" id="page-title"><h2 class="base4font man2_pic_h2">Top papers</h2><a class="plus_minus_link" href="' . url('add/paper') . '">Add</a></div>';
+  $output .= '<div class="rank" style="margin:10px;text-align: right;">
+    <form method="get" action="" id="period">
+    <input type="hidden" name="q" value="papers/popular"/>
+    Sort by most <select onchange="javascript:submit();" name="order" id="order" size="1">
+    <option ';
+  if ($stype == 4) {
+    $output .= 'selected="selected"';
+  }
+  $output .= ' value="qtr">Top value</option>
+    <option ';
+  if ($stype == 1) {
+    $output .= 'selected="selected"';
+  }
+  $output .= ' value="vote">Recent votes</option>
+    <option ';
+  if ($stype == 2) {
+    $output .= ' selected="selected"';
+  }
+  $output .= 'value="download">Recent downloads</option>
+    </select> in the last <select';
+  if ($stype == 4) {
+    $output .= ' disabled="disabled"';
+  }
+  $output .= ' onchange="javascript:submit();" name="period" id="period" size="1">
+    <option ';
+  if ($time == 'week') {
+    $output .= 'selected="selected"';
+  }
+  $output .= ' value="week">week</option>
+    <option ';
+  if ($time == 'month') {
+    $output .= 'selected="selected"';
+  }
+  $output .= ' value="month">month</option>
+    <option ';
+  if ($time == '6month') {
+    $output .= 'selected="selected"';
+  }
+  $output .= ' value="6month">6 months</option>
+    <option ';
+  if ($time == 'year') {
+    $output .= 'selected="selected"';
+  }
+  $output .= ' value="year">year</option>
+    </select> </form>
+  </div>';
+
+  $build['title']=array(
+    '#markup' => $output,
+  );
+  if (!empty($nids)) {
+    $nodes = node_load_multiple($nids);
+    $build['content'] = array(
+      '#prefix' => '<div class="popular-papers">',
+      '#markup' => render(node_view_multiple($nodes)),
+      '#suffix' => '</div>',
+    );
+
+    // 'rss.xml' is a path, not a file, registered in node_menu().
+    drupal_add_feed('rss.xml', variable_get('site_name', 'Drupal') . ' ' . t('RSS'));
+    $build['content']['pager'] = array(
+      '#theme' => 'pager',
+      '#weight' => 5,
+    );
+    drupal_set_title(t(''));
+  }
+  else {
+
+    $default_message = '<p>' . t('No paper has been created yet.') . '</p>';
+
+    $default_links = array();
+    if (_node_add_access()) {
+      $default_links[] = l(t('Add new content'), 'node/add');
+    }
+    if (!empty($default_links)) {
+      $default_message .= theme('item_list', array('items' => $default_links));
+    }
+
+    $build['default_message'] = array(
+      '#markup' => $default_message,
+      '#prefix' => '<div id="first-time">',
+      '#suffix' => '</div>',
+    );
+  }
+  return $build;
+}
+
+function paper_add() {
+  $output = '<div><b>There are two options you can choose to post a paper:</b></div>';
+  $output .= '<p class="mt15">Option 1: If the paper is posted on arXiv.org, please click <a href="' . url('node/add/paper-from-arxiv') . '">here</a></p>';
+  $output .= '<p class="mt15">Option 2: Sumbit a paper from websites other than arXiv.org or not shown on any website, please click <a href="' . url('node/add/paper') . '">here</a></p>';
+  $build['title'] = array(
+    '#markup' => $output,
+  );
+  return $build;
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ *
+ * Displays the most recent blogs.
+ */
+function qscience_block_view_blog_recent_alter(&$data, $block) {
+  global $user;
+
+  if (user_access('access content')) {
+    $result = db_select('node', 'n')
+            ->fields('n', array('nid', 'title', 'created'))
+            ->condition('type', 'blog')
+            ->condition('status', 1)
+            ->orderBy('created', 'DESC')
+            ->range(0, variable_get('blog_block_count', 5))
+            ->addTag('node_access')
+            ->execute()->fetchCol();
+    $data['subject'] = t('Latest Blogs');
+    if (!empty($result)) {
+      $nodes = node_load_multiple($result);
+      $data['content']['blog_list'] = node_view_multiple($nodes, 'teaser');
+      $data['content']['blog_more'] = array(
+        '#theme' => 'more_link',
+        '#url' => 'blog',
+        '#title' => t('Read the latest blog entries.'),
+      );
+    }
+    else {
+      $data['content']['blog_list'] =t('No blog entries have been created.');
+    }
+  }
+}
+
 /**
  * Implements node_create_for_REFERENCE_TYPE hook to able to create lazy referencing.
  */
@@ -45,7 +296,7 @@ function qscience_node_create_for_author_reference($node_title, $language) {
  */
 function qscience_node_create_for_citation_reference($citation_title, $language) {
   global $user;
-  
+
   $pos = mb_stripos(drupal_strtolower($citation_title), "[authors:");
   $authors = array();
   if ($pos !== FALSE) {
@@ -169,17 +420,17 @@ function qscience_paper_uploaded($file) {
 
 function qscience_paper_form_validate(&$form, &$form_state) {
   global $_POST;
-  
+
   if (is_numeric($form['nid']['#value'])) {
     return;
   }
-  
+
   $lang = $form['language']['#value'];
   $title = $form_state['values']['title'];
   $filename = FALSE;
   $fid = isset($form_state['values']['field_paper_upload'][$lang][0]['fid']) ? $form_state['values']['field_paper_upload'][$lang][0]['fid'] : FALSE;
   $match_ids = array();
-  
+
   $query_title = db_select('node', 'n');
   $result_title = $query_title
         ->fields('n', array('nid'))
@@ -188,7 +439,7 @@ function qscience_paper_form_validate(&$form, &$form_state) {
   foreach ($result_title as $row) {
     $match_ids['title'] = (int)$row->nid;
   }
-  
+
   if ($fid !== FALSE) {
     $query_tmp = db_select('file_managed', 'fm');
     $result_tmp = $query_tmp
@@ -213,7 +464,7 @@ function qscience_paper_form_validate(&$form, &$form_state) {
       }
     }
   }
-  
+
   if (!isset($_POST['submit_anyway']) && count($match_ids) > 0) {
     foreach ($match_ids as $type => $id) {
       form_set_error('', t('A paper with the same @type already exists, <a href="@link" target="_blank">please check</a> it before saving new paper anyway.',
@@ -224,7 +475,7 @@ function qscience_paper_form_validate(&$form, &$form_state) {
         )
       );
     }
-    
+
     $form['submit_anyway'] = array(
       '#type' => 'submit',
       '#value' => t('Save paper anyway'),
@@ -232,26 +483,6 @@ function qscience_paper_form_validate(&$form, &$form_state) {
       '#name' => 'submit_anyway',
     );
   }
-}
-
-function qscience_form_alter(&$form, &$form_state, $form_id) {
-//  if ($form_id === 'paper_node_form') {
-//    foreach ($form['author_reference']['und'] as $key => $val) {
-//      if (gettype($key) == 'integer') {
-//        if ($key === 0) continue;
-//        $form['author_reference']['und'][$key][] = array(
-//          '#type' => 'image_button',
-//          '#value' => t('Delete'),
-//          '#weight' => 20,
-//          '#attributes' => array(
-//            'class' => array(
-//              'author-remove'
-//            ),
-//          ),
-//        );
-//      }
-//    }
-//  }
 }
 
 function qscience_node_validate($node, &$form, &$form_state) {
