@@ -134,8 +134,10 @@ function qscience_user_field() {
   }
 }
 
+/**
+ * Create fields for node entity type.
+ */
 function qscience_create_field() {
-  // Create fields for node entity type.
 
   $fields = array(
     array(
@@ -210,6 +212,9 @@ function qscience_create_field() {
   }
 }
 
+/**
+ * Creating paper node.
+ */
 function qscience_node_paper() {
   $type = array(
     'type' => 'paper',
@@ -265,6 +270,9 @@ function qscience_node_paper() {
   }
 }
 
+/**
+ * Creating arxiv node.
+ */
 function qscience_node_arxiv() {
   $type = array(
     'type' => 'paper_from_arxiv',
@@ -291,6 +299,7 @@ function qscience_node_arxiv() {
   );
   field_create_instance($instance);
 }
+
 
 function qscience_node_bookreview() {
   $type = array(

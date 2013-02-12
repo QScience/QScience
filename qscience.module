@@ -262,6 +262,7 @@ function qscience_node_create_for_author_reference($node_title, $language) {
   $node = new stdClass();
   $node->title = $node_title;
   $split = explode(" ", $node->title);
+  // trying to extract first and last name
   $first_name = isset($split[0]) ? $split[0] : 'unknown';
   $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
 
@@ -280,12 +281,12 @@ function qscience_node_create_for_author_reference($node_title, $language) {
     )
   );
   $node->type = "author";
-  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
-  $node->language = $language; // Or e.g. 'en' if locale is enabled
+  node_object_prepare($node);
+  $node->language = $language;
   $node->uid = $user->uid;
-  $node->status = 1; //(1 or 0): published or not
-  $node->promote = 0; //(1 or 0): promoted to front page
-  $node->comment = 1; //2 = comments on, 1 = comments off
+  $node->status = 1;
+  $node->promote = 0;
+  $node->comment = 1;
 
   $node = node_submit($node); // Prepare node for saving
   node_save($node);
@@ -295,6 +296,9 @@ function qscience_node_create_for_author_reference($node_title, $language) {
 
 /**
  * Implements node_create_for_REFERENCE_TYPE hook to able to create lazy referencing.
+ * 
+ * Format of the input string: Title of the paper [Authors: Author Name1, Author Name2]
+ * So we chop off the first part to get the title, and extract the authors part.
  */
 function qscience_node_create_for_citation_reference($citation_title, $language) {
   global $user;
@@ -306,39 +310,43 @@ function qscience_node_create_for_citation_reference($citation_title, $language)
     $citation_title = drupal_substr($citation_title, 0, $pos);
   }
   $citation_node = FALSE;
+  // checking if node exists or not
   $citation_nid = _qscience_check_if_node_exists($citation_title, 'paper');
   if ($citation_nid === FALSE) {
-  //  dvm($authors);
     $citation_node = new stdClass();
     $citation_node->title = trim($citation_title);
     $citation_node->type = "paper";
-    node_object_prepare($citation_node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
-    $citation_node->language = $language; // Or e.g. 'en' if locale is enabled
+    node_object_prepare($citation_node);
+    $citation_node->language = $language;
     $citation_node->uid = $user->uid;
-    $citation_node->status = 1; //(1 or 0): published or not
-    $citation_node->promote = 0; //(1 or 0): promoted to front page
-    $citation_node->comment = 1; //2 = comments on, 1 = comments off
+    $citation_node->status = 1;
+    $citation_node->promote = 0;
+    $citation_node->comment = 1;
 
-    $citation_node = node_submit($citation_node); // Prepare node for saving
+    $citation_node = node_submit($citation_node);
   }
   else {
     $citation_node = node_load($citation_nid);
   }
 
   $citation_targets = array();
+  // checking existance of author references array
   if (!isset($citation_node->author_reference[$language])) {
     $citation_node->author_reference[$language] = array();
   }
   else {
+    // if exists, collecting the already referenced ids
     foreach ($citation_node->author_reference[$language] as $key => $val) {
       $citation_targets[] = $val['target_id'];
     }
   }
 
+  // looping through the author names
   foreach ($authors as $author_name) {
     $author_name = trim($author_name);
     $author_nid = _qscience_check_if_node_exists($author_name, 'author');
 
+    // if the specific author does not exists, we create it
     if ($author_nid === FALSE) {
       $author_node = new stdClass();
       $author_node->title = $author_name;
@@ -373,6 +381,7 @@ function qscience_node_create_for_citation_reference($citation_title, $language)
       node_save($author_node);
       $author_nid = $author_node->nid;
     }
+    // if the actual author is not assigned to the paper, then we assign it
     if (!in_array($author_nid, $citation_targets)) {
       $citation_node->author_reference[$language][] = array(
         'target_id' => $author_nid,
@@ -385,6 +394,11 @@ function qscience_node_create_for_citation_reference($citation_title, $language)
   return $citation_node->nid;
 }
 
+/**
+ * Private function to check if a node exists. The function checks the matching of
+ * the title.
+ * 
+ */
 function _qscience_check_if_node_exists($match, $node_type) {
   $nid = FALSE;
   $query = db_select('node', 'n')
@@ -405,7 +419,7 @@ function _qscience_check_if_node_exists($match, $node_type) {
 }
 
 /**
- * Implements file_insert
+ * Implements hook_file_insert. We hook into the file upload here.
  */
 function qscience_file_insert($file) {
   if ($_POST['form_id'] == 'paper_node_form') {
@@ -413,6 +427,11 @@ function qscience_file_insert($file) {
   }
 }
 
+/**
+ * Calling the own hook_paper_uploaded hook. So if some module (like pdfparser)
+ * implements it, then it can react to the paper upload event.
+ * 
+ */
 function qscience_paper_uploaded($file) {
   foreach (module_implements('paper_uploaded') as $module) {
     if ($module === 'qscience') continue;
@@ -420,9 +439,16 @@ function qscience_paper_uploaded($file) {
   }
 }
 
+/**
+ * Implements hook_FORM_NAME_validate.
+ * This function is responsible for validating the saved paper data.
+ * Validation in this case means checking if a similar paper exists or not.
+ * 
+ */
 function qscience_paper_form_validate(&$form, &$form_state) {
   global $_POST;
 
+  // if editing the paper then return, beacause no need to validate the editing
   if (is_numeric($form['nid']['#value'])) {
     return;
   }
@@ -433,6 +459,7 @@ function qscience_paper_form_validate(&$form, &$form_state) {
   $fid = isset($form_state['values']['field_paper_upload'][$lang][0]['fid']) ? $form_state['values']['field_paper_upload'][$lang][0]['fid'] : FALSE;
   $match_ids = array();
 
+  // checking matching paper titles
   $query_title = db_select('node', 'n');
   $result_title = $query_title
         ->fields('n', array('nid'))
@@ -442,6 +469,7 @@ function qscience_paper_form_validate(&$form, &$form_state) {
     $match_ids['title'] = (int)$row->nid;
   }
 
+  // checking existance of file if is file selected...
   if ($fid !== FALSE) {
     $query_tmp = db_select('file_managed', 'fm');
     $result_tmp = $query_tmp
@@ -452,6 +480,7 @@ function qscience_paper_form_validate(&$form, &$form_state) {
       $filename = $row->filename;
       break;
     }
+    // if we found the filename
     if ($filename !== FALSE) {
       $query_file = db_select('node', 'n');
       $query_file->join('file_usage', 'fu', 'fu.id = n.nid');
@@ -467,6 +496,8 @@ function qscience_paper_form_validate(&$form, &$form_state) {
     }
   }
 
+  // if first submit, and we found a match id somewhere we raise an error, and we add
+  // a "submit anyway" button
   if (!isset($_POST['submit_anyway']) && count($match_ids) > 0) {
     foreach ($match_ids as $type => $id) {
       form_set_error('', t('A paper with the same @type already exists, <a href="@link" target="_blank">please check</a> it before saving new paper anyway.',
@@ -487,16 +518,27 @@ function qscience_paper_form_validate(&$form, &$form_state) {
   }
 }
 
+/**
+ * Implements hook_node_validate.
+ */
 function qscience_node_validate($node, &$form, &$form_state) {
   if ($node->type === 'paper') {
     _qscience_paper_node_form_alter($form);
   }
 }
 
+/**
+ * Implements hook_form_BASE_FORM_ID_alter.
+ */
 function qscience_form_paper_node_form_alter(&$form, &$form_state, $form_id) {
   _qscience_paper_node_form_alter($form);
 }
 
+/**
+ * Called by validate or alter.
+ * It adds the necessary js and css files and additional validate function
+ * to the paper upload form.
+ */
 function _qscience_paper_node_form_alter(&$form) {
   drupal_add_js(drupal_get_path('module', 'qscience') . '/js/qscience.js', 'file');
   drupal_add_css(drupal_get_path('module', 'qscience') . '/css/qscience.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
