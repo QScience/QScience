@@ -173,9 +173,11 @@ function paper_sort_filter() {
   );
   if (!empty($nids)) {
     $nodes = node_load_multiple($nids);
+    $nvm = node_view_multiple($nodes);
+    $render = render($nvm);
     $build['content'] = array(
       '#prefix' => '<div class="popular-papers">',
-      '#markup' => render(node_view_multiple($nodes)),
+      '#markup' => $render,
       '#suffix' => '</div>',
     );
 
