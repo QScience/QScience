@@ -10,6 +10,7 @@ dependencies[] = entityreference
 dependencies[] = views
 dependencies[] = eva
 dependencies[] = qtr
+dependencies[] = filefield_sources
 
 core = 7.x
 version = "7.x-1.0"

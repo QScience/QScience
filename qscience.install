@@ -240,9 +240,30 @@ function qscience_node_paper() {
       'widget' => array(
         'type' => 'file_generic',
         'weight' => -10,
+        'settings' => array(
+          'filefield_sources' => array(
+            'filefield_sources' => array(
+              'remote' => 'remote'
+            ),
+            'source_attach' => array(
+              'path' => 'file_attach',
+              'absolute' => 0,
+            )
+          )
+        )
       ),
-      'required' => 1,
+      'required' => 0,
     ),
+//    array(
+//      'field_name' => 'url',
+//      'label' => 'External URL',
+//      'entity_type' => 'node',
+//      'bundle' => 'paper',
+//      'widget' => array(
+//        'type' => 'text_textfield',
+//        'weight' => -8,
+//      ),
+//    ),
     array(
       'field_name' => 'abstract',
       'label' => 'Abstract',
@@ -253,16 +274,6 @@ function qscience_node_paper() {
         'weight' => 0,
       ),
       'required' => 1,
-    ),
-    array(
-      'field_name' => 'url',
-      'label' => 'External URL',
-      'entity_type' => 'node',
-      'bundle' => 'paper',
-      'widget' => array(
-        'type' => 'text_textfield',
-        'weight' => 2,
-      ),
     ),
   );
   foreach ($paperinstances as $instance) {
