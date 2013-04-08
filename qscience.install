@@ -817,7 +817,7 @@ function qscience_citation_reference_field_create() {
     'field_name' => 'citation_reference',
     'entity_type' => 'node',
     'bundle' => 'paper',
-    'label' => t('Citations'),
+    'label' => t('References'),
     'widget' => array(
       'type' => 'entityreference_autocomplete',
       'weight' => 10,

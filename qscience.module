@@ -523,8 +523,75 @@ function qscience_paper_form_validate(&$form, &$form_state) {
  */
 function qscience_node_validate($node, &$form, &$form_state) {
   if ($node->type === 'paper') {
+    $language = $form_state['values']['language'];
+    $lazyref_fields = _entityreference_get_fields_for_lazyreference($form_state);
+    foreach($lazyref_fields as $field) {
+//      dvm($form_state['values'][$field][$language]);
+      foreach ($form_state['values'][$field][$language] as $number => $target) {
+        if (is_numeric($number) && isset($target['target_id']) && is_array($target['target_id'])) {
+          $title = $target['target_id']['title'];
+          
+          $real_title = _qscience_get_real_title($title);
+          $len = drupal_strlen($real_title);
+          if ($len > 255 && $len <= 1024) {
+            form_set_error($field, t('Too long field content. Max length is 255 characters but currently %length% characters long.', array(
+              '%length%' => $len
+            )));
+          }
+        }
+      }
+    }
+    if (isset($form_state['input']['author_reference'])) {
+        $i = 0;
+        foreach ($form_state['input']['author_reference']['extracted'] as $key => $author) {
+          if (is_numeric($key)) {
+            $len = drupal_strlen($author['name']);
+            if ($len > 255) {
+              form_set_error('', t('Too long field value in extracted author field. Maximum length is 255 characters, current length is: %len% characters.', array(
+                '%len%' => $len
+              )));
+            }
+          }
+        }
+      }
+      if (isset($form_state['input']['citation_reference'])) {
+        $i = 0;
+        foreach ($form_state['input']['citation_reference']['extracted'] as $key => $citation) {
+          if (is_numeric($key)) {
+            $real_title = _qscience_get_real_title($citation['name']);
+            $len = drupal_strlen($real_title);
+            if ($len > 255) {
+              form_set_error('', t('Too long field value in extracted citaiton field. Maximum length is 255 characters, current length is: %len% characters.', array(
+                '%len%' => $len
+              )));
+            }
+          }
+        }
+      }
+//    if ($form['#id'] == 'paper-node-form') {
+//      if (isset($form_state['input']['author_reference'])) {
+//        $i = 0;
+//        foreach ($form_state['input']['author_reference']['extracted'] as $key => $author) {
+//          if (is_numeric($key)) {
+//            if (drupal_strlen($author['name']) > 1000);
+//            form_set_error('', t('Too long field value in extracted author field. Maximum length is 1000 characters.'));
+//          }
+//        }
+//      }
+//    }
+    // + check if titles arent too long...
+    
     _qscience_paper_node_form_alter($form);
   }
+}
+
+function _qscience_get_real_title($title) {
+  $low = drupal_strtolower($title);
+  $author_pos = strpos($low, "[authors:");
+  if ($author_pos !== FALSE) {
+    $title = drupal_substr($title, 0, $author_pos);
+  }
+  return $title;
 }
 
 /**
