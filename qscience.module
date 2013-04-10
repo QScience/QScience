@@ -534,7 +534,7 @@ function qscience_node_validate($node, &$form, &$form_state) {
           $real_title = _qscience_get_real_title($title);
           $len = drupal_strlen($real_title);
           if ($len > 255 && $len <= 1024) {
-            form_set_error($field, t('Too long field content. Max length is 255 characters but currently %length% characters long.', array(
+            form_set_error($field, t('Value too long for the field. Max length is 255 characters but currently %length% characters long.', array(
               '%length%' => $len
             )));
           }
@@ -547,7 +547,7 @@ function qscience_node_validate($node, &$form, &$form_state) {
           if (is_numeric($key)) {
             $len = drupal_strlen($author['name']);
             if ($len > 255) {
-              form_set_error('', t('Too long field value in extracted author field. Maximum length is 255 characters, current length is: %len% characters.', array(
+              form_set_error('', t('Value too long for the extracted author field. Maximum length is 255 characters, current length is %len% characters.', array(
                 '%len%' => $len
               )));
             }
@@ -561,7 +561,7 @@ function qscience_node_validate($node, &$form, &$form_state) {
             $real_title = _qscience_get_real_title($citation['name']);
             $len = drupal_strlen($real_title);
             if ($len > 255) {
-              form_set_error('', t('Too long field value in extracted citaiton field. Maximum length is 255 characters, current length is: %len% characters.', array(
+              form_set_error('', t('Value too long for the extracted reference field. Maximum length is 255 characters, current length is %len% characters.', array(
                 '%len%' => $len
               )));
             }
