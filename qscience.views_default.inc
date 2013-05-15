@@ -20,14 +20,14 @@ function qscience_block_info() {
       'status' => TRUE,
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_LISTED,
-      'pages' => array('node/*'),
+      'pages' => 'node/*',
     ),
     'authors_block_3-block' => array(
       'info' => t('Authors Block 2'),
       'status' => TRUE,
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_LISTED,
-      'pages' => array('node/*'),
+      'pages' => 'node/*',
     )
   );
 
