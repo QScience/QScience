@@ -149,7 +149,11 @@ function qscience_create_field() {
       'type' => 'text_with_summary',
     ),
     array(
-      'field_name' => 'journal',
+      'field_name' => 'year_of_publ',
+      'type' => 'number_decimal',
+    ),
+    array(
+      'field_name' => 'external_link',
       'type' => 'text',
     ),
     array(
@@ -277,8 +281,8 @@ function qscience_node_paper() {
     ),
       
     array(
-      'field_name' => 'publication_date',
-      'label' => 'Date of publication',
+      'field_name' => 'year_of_publ',
+      'label' => 'Year of publication',
       'entity_type' => 'node',
       'bundle' => 'paper',
       'widget' => array(

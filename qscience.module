@@ -541,7 +541,7 @@ function qscience_node_validate($node, &$form, &$form_state) {
         }
       }
     }
-    if (isset($form_state['input']['author_reference'])) {
+    if (isset($form_state['input']['author_reference']['extracted'])) {
         $i = 0;
         foreach ($form_state['input']['author_reference']['extracted'] as $key => $author) {
           if (is_numeric($key)) {
@@ -554,7 +554,7 @@ function qscience_node_validate($node, &$form, &$form_state) {
           }
         }
       }
-      if (isset($form_state['input']['citation_reference'])) {
+      if (isset($form_state['input']['citation_reference']['extracted'])) {
         $i = 0;
         foreach ($form_state['input']['citation_reference']['extracted'] as $key => $citation) {
           if (is_numeric($key)) {
