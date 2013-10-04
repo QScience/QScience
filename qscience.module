@@ -259,39 +259,45 @@ function qscience_block_view_blog_recent_alter(&$data, $block) {
 function qscience_node_create_for_author_reference($node_title, $language) {
   global $user;
 
-  $node = new stdClass();
-  $node->title = $node_title;
-  $split = explode(" ", $node->title);
-  // trying to extract first and last name
-  $first_name = isset($split[0]) ? $split[0] : 'unknown';
-  $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
+  $nid = _qscience_check_if_node_exists($node_title, 'author');
+  if ($nid !== FALSE) {
+    return $nid;
+  } else {
+  
+    $node = new stdClass();
+    $node->title = $node_title;
+    $split = explode(" ", $node->title);
+    // trying to extract first and last name
+    $first_name = isset($split[0]) ? $split[0] : 'unknown';
+    $last_name = isset($split[1]) ? implode(" ", array_splice($split, 1)) : '';
 
-  $node->first_name = array(
-    $language => array(
-      array(
-        'value' => $first_name
+    $node->first_name = array(
+      $language => array(
+        array(
+          'value' => $first_name
+        )
       )
-    )
-  );
-  $node->last_name = array(
-    $language => array(
-      array(
-        'value' => $last_name
+    );
+    $node->last_name = array(
+      $language => array(
+        array(
+          'value' => $last_name
+        )
       )
-    )
-  );
-  $node->type = "author";
-  node_object_prepare($node);
-  $node->language = $language;
-  $node->uid = $user->uid;
-  $node->status = 1;
-  $node->promote = 0;
-  $node->comment = 1;
+    );
+    $node->type = "author";
+    node_object_prepare($node);
+    $node->language = $language;
+    $node->uid = $user->uid;
+    $node->status = 1;
+    $node->promote = 0;
+    $node->comment = 1;
 
-  $node = node_submit($node); // Prepare node for saving
-  node_save($node);
+    $node = node_submit($node); // Prepare node for saving
+    node_save($node);
 
-  return $node->nid;
+    return $node->nid;
+  }
 }
 
 /**
@@ -303,6 +309,7 @@ function qscience_node_create_for_author_reference($node_title, $language) {
 function qscience_node_create_for_citation_reference($citation_title, $language) {
   global $user;
 
+  $citation_title = trim($citation_title, "\t \".,");
   $pos = mb_stripos(drupal_strtolower($citation_title), "[authors:");
   $authors = array();
   if ($pos !== FALSE) {
@@ -311,6 +318,13 @@ function qscience_node_create_for_citation_reference($citation_title, $language)
   }
   $citation_node = FALSE;
   // checking if node exists or not
+  $citation_title = trim($citation_title, "\t \".,");
+  $matches = FALSE;
+  preg_match('/.*\(([0-9]+)\)/', $citation_title, $matches);
+//  dvm($matches);
+  
+  
+//  dvm("checking title: '".$citation_title."'");
   $citation_nid = _qscience_check_if_node_exists($citation_title, 'paper');
   if ($citation_nid === FALSE) {
     $citation_node = new stdClass();
