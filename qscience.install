@@ -279,7 +279,7 @@ function qscience_node_paper() {
       ),
       'required' => 1,
     ),
-      
+
     array(
       'field_name' => 'year_of_publ',
       'label' => 'Year of publication',
@@ -291,7 +291,7 @@ function qscience_node_paper() {
       ),
       'required' => 0,
     ),
-      
+
     array(
       'field_name' => 'external_link',
       'label' => 'External link',
@@ -720,7 +720,7 @@ function qscience_author_autotitle() {
       }
       break;
     }
-    $ret .= " ";
+    $ret .= $ret === "" ? "" : " ";
     foreach ($node->last_name as $lang) {
       foreach ($lang as $key => $val) {
         $ret .= $val["value"];
